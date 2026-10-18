@@ -1,0 +1,30 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# osmnx overpass cache
+cache/
+
+# Runtime session state (not the baseline, which is committed): one per
+# site, see the core's SiteConfig.session_json_path.
+data/*/session.json
+# Sessions set aside when a scenario replaces them (the core's store/state.py).
+data/*/session.*.json
+
+# Raw LiDAR/orthophoto inputs for the ingestion, one per-site directory under
+# data/ (see the core's civic_engagement/ingestion/lidar.py and ortofoto.py).
+# What's derived from them lands in the committed baseline and terrain grid;
+# these source rasters are too large and too easily re-fetched to be worth
+# committing.
+data/*/lidar/
+data/*/ortofoto/
+
+# Frontend
+node_modules/

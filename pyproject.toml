@@ -1,0 +1,36 @@
+[project]
+name = "bologna-civic-dt"
+version = "0.1.0"
+description = "Urban domain pack for civic-engagement: the urban model on civic-digital-twins"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.12"
+dependencies = [
+    "civic-digital-twins==0.12.0",
+    "civic-engagement",
+    "geopandas>=1.1.4",
+    "numpy",
+    "osmnx>=2.1.0",
+    "shapely>=2.1.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+
+[tool.pytest.ini_options]
+# Run from the repository's root, which holds data/ (the sites' files).
+testpaths = ["tests"]
+
+[build-system]
+requires = ["uv_build>=0.12.0,<0.13"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "bologna_civic_dt"
+module-root = ""
+
+[tool.uv.sources]
+# The core, at a commit of its repository: set it with scripts/core.py.
+civic-engagement = { git = "https://github.com/fbk-most/civic-engagement", rev = "50eec1c50b49bb51d901b6ab24b2f241904abb45" }

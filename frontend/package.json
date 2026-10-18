@@ -1,0 +1,27 @@
+{
+  "name": "bologna-civic-dt",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "The urban app: the civic-engagement frontend with the urban pack",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "oxlint",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit"
+  },
+  "dependencies": {
+    "civic-engagement": "git+https://github.com/fbk-most/civic-engagement.git#50eec1c50b49bb51d901b6ab24b2f241904abb45",
+    "three": "^0.185.1"
+  },
+  "devDependencies": {
+    "@types/geojson": "^7946.0.16",
+    "@types/node": "^24.13.2",
+    "@types/three": "^0.185.1",
+    "@vitejs/plugin-react": "^6.0.3",
+    "oxlint": "^1.71.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.1.1"
+  }
+}
