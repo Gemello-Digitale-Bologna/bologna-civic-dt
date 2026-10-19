@@ -8,8 +8,10 @@ repository, or a local checkout while developing both.
 
 then updates the locks and installs (uv sync, npm install). A local core is
 for development only: commit the pack pinned to a commit of the core. The
-backend uses it as it is (editable); the app gets a copy of its frontend
-(see frontend/.npmrc): run this again after changing it.
+backend uses it as it is (editable), and so does the app's dev server and
+build (see frontend/vite.config.ts); npm installs a copy of it (see
+frontend/.npmrc), which the app's typecheck reads: run this again when the
+core's interface changes.
 """
 
 import argparse

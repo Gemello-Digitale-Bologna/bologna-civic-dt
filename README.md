@@ -52,6 +52,11 @@ before committing:
 python3 scripts/core.py local [../civic-engagement]
 ```
 
+The app's dev server then serves the core's sources from that checkout, and
+reloads with their changes; the typecheck reads npm's copy, refreshed by
+running the script again. A git hook refuses a commit with a local core:
+`cp scripts/pre-commit .git/hooks/`.
+
 ## Backend
 
 Python 3.12, managed with [uv](https://docs.astral.sh/uv/). From the

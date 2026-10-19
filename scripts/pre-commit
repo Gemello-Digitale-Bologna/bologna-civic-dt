@@ -1,0 +1,18 @@
+#!/bin/sh
+# A git hook (install: cp scripts/pre-commit .git/hooks/): refuses a commit whose core
+# (civic-engagement) is a local checkout, set by `scripts/core.py local`.
+# Such a commit would break every install from GitHub. Pin a commit of the
+# core first: python3 scripts/core.py <commit>
+staged() { git show ":$1" 2>/dev/null; }
+found=""
+staged pyproject.toml | grep -qE '^civic-engagement = \{ *path' && found="$found pyproject.toml"
+staged uv.lock | grep -A2 '^name = "civic-engagement"$' | grep -qE '^source = \{ *(editable|directory)' && found="$found uv.lock"
+for file in frontend/package.json frontend/package-lock.json; do
+  staged "$file" | grep -qE '"civic-engagement": *"file:' && found="$found $file"
+done
+if [ -n "$found" ]; then
+  echo "pre-commit: the core is a local checkout in:$found" >&2
+  echo "Pin a commit of the core first: python3 scripts/core.py <commit>" >&2
+  echo "(git commit --no-verify to commit anyway)" >&2
+  exit 1
+fi

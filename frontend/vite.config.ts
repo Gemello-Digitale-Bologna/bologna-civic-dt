@@ -1,6 +1,28 @@
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+
+// The core (civic-engagement). Pinned to a commit, it's the copy npm installed
+// in node_modules. A local checkout (`scripts/core.py local`) is served from
+// its own sources instead, so that its edits reload live (npm's copy only
+// changes with the next `scripts/core.py local`), with the libraries it shares
+// with the app (three.js, React, ...) taken from the app's node_modules, once.
+const here = fileURLToPath(new URL('.', import.meta.url))
+const readJson = (file: string) => JSON.parse(readFileSync(file, 'utf8'))
+const coreSpec: string = readJson(path.join(here, 'package.json')).dependencies['civic-engagement']
+const localCore = coreSpec.startsWith('file:') ? path.resolve(here, coreSpec.slice('file:'.length)) : null
+const core = localCore ?? path.join(here, 'node_modules/civic-engagement')
+const coreLibraries = Object.keys(readJson(path.join(core, 'package.json')).dependencies)
+  .filter((name) => !name.startsWith('@types/'))
+const resolve = localCore
+  ? {
+      alias: [{ find: /^civic-engagement$/, replacement: path.join(localCore, 'frontend/src/index.ts') }],
+      dedupe: coreLibraries,
+    }
+  : undefined
+const fs = localCore ? { allow: [here, localCore] } : undefined
 
 // The backend, for both the dev server and the production preview.
 const proxy = {
@@ -10,9 +32,10 @@ const proxy = {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // The core's static files (3D models, textures), from its package.
-  publicDir: fileURLToPath(new URL('./node_modules/civic-engagement/frontend/public', import.meta.url)),
-  server: { proxy },
+  resolve,
+  // The core's static files (3D models, textures).
+  publicDir: path.join(core, 'frontend/public'),
+  server: { proxy, fs },
   // `npm run preview` serves the production build: what to use for
   // workshops, demos and performance measurements — the development build
   // is several times slower (React's development mode alone adds seconds
