@@ -44,6 +44,10 @@ the core:
 python3 scripts/core.py <commit>
 ```
 
+With `python3`, not `uv run`: uv would first install the project, which a
+broken pin stops. If the installs fail (a commit that doesn't exist, say),
+the script goes back to the previous core.
+
 To develop the core and the pack together, point the pack at a local
 checkout of the core (beside this one by default), and back to a commit
 before committing:
