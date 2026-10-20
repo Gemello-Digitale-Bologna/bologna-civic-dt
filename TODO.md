@@ -11,6 +11,9 @@ The core's list is the `TODO.md` of its repository, civic-engagement.
   provisional circle.
 - **Crossings in the walkability indicator**: zebra crossings don't count
   towards accessibility yet.
+- **Piazza Dante's terrain is bumpy** where it's paved (DTM artefacts):
+  the demo opens flat (`terrain=off`) until the core smooths it (see the
+  core's TODO, "Terrain"); then rebuild the terrain grid.
 
 ## 3D life: people and dogs
 

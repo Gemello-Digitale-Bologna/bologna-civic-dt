@@ -51,18 +51,19 @@ The preset (`data/piazza_dante/scenarios/demo.json`) has:
   grove (year 12).
 
 The links assume the preview on port 4173 (5173 for the dev server). They
-open with the side boxes closed (`panels=closed`); "Temperatura percepita"
-starts closed anyway.
+open with the side boxes closed (`panels=closed`) and the square flat
+(`terrain=off`), as the demo was designed; "Temperatura percepita" starts
+closed anyway.
 
 The links of steps 1 and 2 open on "Situazione attuale"
 (`interventions=attuale`; also `carte`, `simulazione`), the others on
 "Simulazione", the default. To fine-tune a 3D viewpoint: move the camera,
 then "Copia URL vista" copies a link that reopens it, switch included (add
-`&panels=closed`).
+`&panels=closed&terrain=off`).
 
 ## 1. The square, and the problem (Mappa 2D, then Vista 3D)
 
-[Open](http://localhost:4173/?t=0&month=6&day=21&hour=11&panels=closed&interventions=attuale) — 2D,
+[Open](http://localhost:4173/?t=0&month=6&day=21&hour=11&panels=closed&terrain=off&interventions=attuale) — 2D,
 today, 21 June at 11:00, felt temperature off.
 
 - It opens on **"Situazione attuale"** (the card deck and the list of
@@ -75,7 +76,7 @@ today, 21 June at 11:00, felt temperature off.
 
 ## 2. What it means for people (Vista 3D)
 
-[Open](http://localhost:4173/?t=0&month=6&day=21&hour=11&panels=closed&interventions=attuale&lng=11.120438&lat=46.071454&eyeHeight=16&bearing=303&pitch=-25)
+[Open](http://localhost:4173/?t=0&month=6&day=21&hour=11&panels=closed&terrain=off&interventions=attuale&lng=11.120438&lat=46.071454&eyeHeight=16&bearing=303&pitch=-25)
 — 3D, today at 11:00, looking west-north-west over the arc of benches west
 of the central open space.
 
@@ -104,7 +105,7 @@ of the central open space.
 
 ## 4. Ten years on, with and without (Vista 3D)
 
-[Open](http://localhost:4173/?t=10&month=6&day=21&hour=11&panels=closed&lng=11.120438&lat=46.071454&eyeHeight=16&bearing=303&pitch=-25)
+[Open](http://localhost:4173/?t=10&month=6&day=21&hour=11&panels=closed&terrain=off&lng=11.120438&lat=46.071454&eyeHeight=16&bearing=303&pitch=-25)
 — 3D, +10a, 11:00, the same view.
 
 - Switch between **"Simulazione"** (with the proposals) and **"Situazione
@@ -127,7 +128,7 @@ of the central open space.
 - Untick "Mappa". Date: "Solstizio d'inverno" (bare trees, low sun), mid
   October (autumn colours), back to "Solstizio d'estate".
 - Drag **"Ora"** through the day: shade and people move with the sun.
-- **Night**: [open](http://localhost:4173/?t=10&month=6&day=21&hour=22.5&panels=closed&lng=11.120438&lat=46.071454&eyeHeight=16&bearing=303&pitch=-25)
+- **Night**: [open](http://localhost:4173/?t=10&month=6&day=21&hour=22.5&panels=closed&terrain=off&lng=11.120438&lat=46.071454&eyeHeight=16&bearing=303&pitch=-25)
   — the view of steps 2 and 4 at 22:30. Switch "Simulazione" / "Situazione
   attuale": the lamps placed live along the gravel path (and, at the bottom
   of the view, the lit path across the square) against the dark square; at
