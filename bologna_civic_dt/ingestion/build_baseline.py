@@ -23,6 +23,7 @@ from bologna_civic_dt.trees import (
     species_traits,
 )
 from civic_engagement.geo_utils import to_projected
+from civic_engagement.ingestion.buildings import building_elements
 from civic_engagement.ingestion.lidar import LidarHeightModel
 from civic_engagement.ingestion.ortofoto import OrtofotoModel
 from bologna_civic_dt.ingestion.osm import (
@@ -185,7 +186,7 @@ def build() -> BaselineScene:
         print(f"No orthophoto under {SITE.data_dir}/ortofoto/ — roofs will have no colour tint.")
 
     print("Fetching buildings...")
-    buildings = fetch_buildings(fetch_area, SITE.default_building_height_m)
+    buildings = fetch_buildings(fetch_area)
     print("Fetching cover regions...")
     covers_raw = fetch_cover_regions(site_polygon)
     print("Fetching paths...")
@@ -226,52 +227,7 @@ def build() -> BaselineScene:
     print("Fetching traffic signals...")
     traffic_signals = fetch_points(fetch_area, {"highway": "traffic_signals"})
 
-    elements: list[DiscreteElement] = []
-
-    for i, row in buildings.iterrows():
-        height = float(row.height)
-        # Real tag always wins over anything inferred below.
-        roof_shape = str(row.roof_shape) if pd.notna(row.roof_shape) else None
-        ridge_height_m = None
-
-        polygon_utm = to_projected(geometry_to_geojson(row.geometry)) if (lidar or ortofoto) else None
-        stats = lidar.sample(polygon_utm) if lidar else None
-        if stats is not None:
-            # p90 always, flat or pitched: robust to a chimney/antenna/
-            # parapet pulling the true max up past what a facilitator would
-            # call the building's height. See config.SITE.roof_min_rise_m for why
-            # the roof's rise above this is clamped rather than taken as
-            # `max - p90` directly.
-            height = stats.height_p90
-            if roof_shape is None:
-                # See config.SITE.roof_pitch_std_threshold_m: a real signal, with a
-                # known false-positive mode (flat roof + heavy rooftop plant)
-                # accepted as a PoC-level limit rather than built around.
-                roof_shape = "pitched" if stats.height_std > SITE.roof_pitch_std_threshold_m else "flat"
-            if roof_shape != "flat":
-                rise = min(max(stats.height_max - height, SITE.roof_min_rise_m), SITE.roof_max_rise_m)
-                ridge_height_m = round(height + rise, 1)
-
-        properties: dict = {"height": round(height, 1)}
-        # Only emitted when actually known (tagged or inferred) — the 3D view
-        # falls back to a flat roof / generic facade rather than inventing a
-        # value here.
-        if roof_shape is not None:
-            properties["roof_shape"] = roof_shape
-        if ridge_height_m is not None:
-            properties["ridge_height_m"] = ridge_height_m
-        if pd.notna(row.building_kind):
-            properties["building_kind"] = str(row.building_kind)
-        if ortofoto and polygon_utm is not None:
-            rgb = ortofoto.sample_roof_rgb(polygon_utm)
-            if rgb is not None:
-                properties["roof_color"] = "#%02x%02x%02x" % rgb
-
-        elements.append(DiscreteElement(
-            id=f"building-{i}", type="building", source="baseline",
-            geometry=geometry_to_geojson(row.geometry),
-            properties=properties,
-        ))
+    elements: list[DiscreteElement] = building_elements(buildings, SITE.buildings, lidar, ortofoto)
 
     for i, row in trees.iterrows():
         # `or` doesn't work here: a NaN float is truthy, so `nan or fallback`

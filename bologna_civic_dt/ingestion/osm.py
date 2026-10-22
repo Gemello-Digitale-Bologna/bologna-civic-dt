@@ -1,8 +1,5 @@
-"""OSM fetch helpers for baseline ingestion.
-
-The height-parsing logic here was extracted from the original scripts/spikes/pd.py
-and scripts/spikes/pv.py experiments (both had copy-pasted the same regex hack).
-"""
+"""OSM fetch helpers for baseline ingestion. The buildings' heights and
+roofs are the core's (civic_engagement/ingestion/buildings.py)."""
 
 import math
 
@@ -12,8 +9,8 @@ import pandas as pd
 from shapely.geometry import mapping, shape
 from shapely.geometry.base import BaseGeometry
 
-from bologna_civic_dt.sites import SITE
 from civic_engagement.config import PROJECTED_CRS, WGS84_CRS
+from civic_engagement.ingestion.buildings import footprints, parse_numeric_tag, tag_column
 
 COVER_TAG_TO_TYPE = {
     ("natural", "wood"): "wood",
@@ -66,47 +63,10 @@ def buffer_polygon_m(polygon_wgs84: BaseGeometry, buffer_m: float) -> BaseGeomet
     return buffered.to_crs(WGS84_CRS).iloc[0]
 
 
-def parse_numeric_tag(raw: pd.Series) -> pd.Series:
-    """Parse a loosely-formatted OSM numeric tag (e.g. "12", "12 m") into
-    floats, leaving anything absent or unparseable as NaN so callers can fall
-    through to the next source in their own precedence chain."""
-    extracted = raw.astype(str).str.extract(r"(\d+(?:\.\d+)?)")[0]
-    return pd.to_numeric(extracted, errors="coerce")
-
-
-def _tag_column(df: gpd.GeoDataFrame, name: str) -> pd.Series:
-    """OSM tag columns only exist when at least one fetched feature carries the
-    tag, so every read has to tolerate the column being absent entirely."""
-    if name in df.columns:
-        return df[name]
-    return pd.Series(index=df.index, dtype=object)
-
-
-def building_heights(buildings: gpd.GeoDataFrame, default_height_m: float) -> pd.Series:
-    """Resolve a height in metres for every footprint, in descending order of
-    trustworthiness: an explicit `height` tag, then storey count
-    (`building:levels` plus any habitable `roof:levels`) times a nominal storey
-    height, then a guess keyed on the `building` kind, then the flat default.
-    """
-    explicit = parse_numeric_tag(_tag_column(buildings, "height"))
-    levels = parse_numeric_tag(_tag_column(buildings, "building:levels"))
-    roof_levels = parse_numeric_tag(_tag_column(buildings, "roof:levels")).fillna(0)
-    from_levels = (levels + roof_levels) * SITE.building_level_height_m
-    from_kind = pd.to_numeric(
-        _tag_column(buildings, "building").map(SITE.building_kind_default_height_m), errors="coerce"
-    )
-    return explicit.fillna(from_levels).fillna(from_kind).fillna(default_height_m)
-
-
-def fetch_buildings(polygon: BaseGeometry, default_height_m: float) -> gpd.GeoDataFrame:
-    buildings = ox.features_from_polygon(polygon, tags={"building": True})
-    buildings = buildings[buildings.geometry.type.isin(["Polygon", "MultiPolygon"])]
-    buildings["height"] = building_heights(buildings, default_height_m)
-    # Carried through for the 3D view: roof shape drives the roof solid, and
-    # the building kind picks a facade material. Neither affects the 2D map.
-    buildings["roof_shape"] = _tag_column(buildings, "roof:shape")
-    buildings["building_kind"] = _tag_column(buildings, "building")
-    return buildings.reset_index()[["geometry", "height", "roof_shape", "building_kind"]]
+def fetch_buildings(polygon: BaseGeometry) -> gpd.GeoDataFrame:
+    """The building footprints, with their OSM tags (see the core's
+    ingestion/buildings.py)."""
+    return footprints(ox.features_from_polygon(polygon, tags={"building": True}))
 
 
 def fetch_cover_regions(polygon: BaseGeometry) -> gpd.GeoDataFrame:
@@ -136,7 +96,7 @@ def fetch_paths(polygon: BaseGeometry) -> gpd.GeoDataFrame:
     # Kept so build_baseline.py can tell a crosswalk (`footway=crossing`) from
     # an ordinary footway — its on-road part is drawn as zebra stripes, not
     # as a path ribbon.
-    paths["footway"] = _tag_column(paths, "footway")
+    paths["footway"] = tag_column(paths, "footway")
     return paths[["geometry", "width", "material", "footway"]]
 
 
@@ -188,8 +148,8 @@ def _carriageway_pairs(streets: gpd.GeoDataFrame, projected: gpd.GeoSeries) -> l
     mutually-matched pair appears as both `(i, j)` and `(j, i)`; callers that
     want each physical carriageway once should dedupe via `frozenset`.
     """
-    name = _tag_column(streets, "name")
-    is_oneway = _tag_column(streets, "oneway").astype(str).str.lower().eq("yes")
+    name = tag_column(streets, "name")
+    is_oneway = tag_column(streets, "oneway").astype(str).str.lower().eq("yes")
     named_oneway = [i for i in streets.index if is_oneway[i] and pd.notna(name[i])]
     directions = {i: _way_direction(projected[i]) for i in named_oneway}
 
@@ -251,9 +211,9 @@ def street_widths(streets: gpd.GeoDataFrame) -> pd.Series:
     the candidate, which is what a genuine divided-road twin does and a
     same-loop neighbour usually doesn't.
     """
-    lanes = parse_numeric_tag(_tag_column(streets, "lanes"))
+    lanes = parse_numeric_tag(tag_column(streets, "lanes"))
     class_default = streets.get("highway", pd.Series(index=streets.index)).map(STREET_WIDTH_DEFAULTS_M).fillna(6.0)
-    is_oneway = _tag_column(streets, "oneway").astype(str).str.lower().eq("yes")
+    is_oneway = tag_column(streets, "oneway").astype(str).str.lower().eq("yes")
     fallback = class_default.where(~is_oneway, class_default / 2)
     width = (lanes * LANE_WIDTH_M).fillna(fallback)
 
@@ -277,12 +237,12 @@ def fetch_streets(polygon: BaseGeometry) -> gpd.GeoDataFrame:
     # build_baseline.py can re-run `_carriageway_pairs` and lay out per-lane
     # markings (see road_markings.lane_marking_lines) on this same dataframe,
     # without a second OSM fetch.
-    streets["name"] = _tag_column(streets, "name")
-    streets["oneway"] = _tag_column(streets, "oneway")
-    streets["highway"] = _tag_column(streets, "highway")
-    streets["lanes"] = parse_numeric_tag(_tag_column(streets, "lanes"))
-    streets["lanes_forward"] = parse_numeric_tag(_tag_column(streets, "lanes:forward"))
-    streets["lanes_backward"] = parse_numeric_tag(_tag_column(streets, "lanes:backward"))
+    streets["name"] = tag_column(streets, "name")
+    streets["oneway"] = tag_column(streets, "oneway")
+    streets["highway"] = tag_column(streets, "highway")
+    streets["lanes"] = parse_numeric_tag(tag_column(streets, "lanes"))
+    streets["lanes_forward"] = parse_numeric_tag(tag_column(streets, "lanes:forward"))
+    streets["lanes_backward"] = parse_numeric_tag(tag_column(streets, "lanes:backward"))
     return streets[["geometry", "width", "name", "oneway", "highway", "lanes", "lanes_forward", "lanes_backward"]]
 
 

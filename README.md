@@ -50,7 +50,7 @@ the script goes back to the previous core.
 
 To develop the core and the pack together, point the pack at a local
 checkout of the core (beside this one by default), and back to a commit
-before committing:
+before pushing:
 
 ```bash
 python3 scripts/core.py local [../civic-engagement]
@@ -58,8 +58,10 @@ python3 scripts/core.py local [../civic-engagement]
 
 The app's dev server then serves the core's sources from that checkout, and
 reloads with their changes; the typecheck reads npm's copy, refreshed by
-running the script again. A git hook refuses a commit with a local core:
-`cp scripts/pre-commit .git/hooks/`.
+running the script again. Commits with a local core are fine on a local
+branch, but not on GitHub: a git hook refuses to push them,
+`cp scripts/pre-push .git/hooks/`. Pin a commit of the core before pushing,
+e.g. in the commit that squashes the branch into `main`.
 
 ## Backend
 
@@ -91,6 +93,9 @@ is flat, for now:
 ```bash
 uv run python -m bologna_civic_dt.ingestion.build_terrain --dtm data/piazza_dante/lidar/dtm_2014.asc
 ```
+
+The grid is shaped under the baseline's streets and paths, level across
+and smooth along: build the baseline first.
 
 The models behind the indicators and the felt temperature still take the
 ground as flat: the terrain only changes what the 3D view shows.

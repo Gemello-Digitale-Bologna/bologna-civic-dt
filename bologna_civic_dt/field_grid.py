@@ -208,7 +208,7 @@ def rasterize(boundary_geojson: dict, elements: list[DiscreteElement], covers: l
         if element.type == "building":
             footprint = anchor.local(geometry)
             window, inside = _inside(occluders, footprint)
-            height = float(element.properties.get("height") or SITE.default_building_height_m)
+            height = float(element.properties.get("height") or SITE.buildings.height_m)
             target = occ["building_height"][window]
             target[inside] = np.maximum(target[inside], height)
             fwindow, finside = _inside(field, footprint)

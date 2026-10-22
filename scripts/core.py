@@ -8,7 +8,7 @@ repository, or a local checkout while developing both.
 
 then updates the locks and installs (uv sync, npm install); if either
 fails, everything goes back to the previous core. A local core is for
-development only: commit the pack pinned to a commit of the core. The
+development only: push the pack pinned to a commit of the core. The
 backend uses it as it is (editable), and so does the app's dev server and
 build (see frontend/vite.config.ts); npm installs a copy of it (see
 frontend/.npmrc), which the app's typecheck reads: run this again when the
@@ -23,6 +23,7 @@ import argparse
 import json
 import os
 import re
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -81,7 +82,12 @@ def set_core(python: str, npm: str) -> None:
     package.write_text(json.dumps(manifest, indent=2) + "\n")
 
     subprocess.run(["uv", "sync"], cwd=ROOT, check=True)
-    subprocess.run(["npm", "install"], cwd=ROOT / "frontend", check=True)
+    # Named, or npm keeps the core its lock already has (the previous one);
+    # and a local core's copy taken away first, or npm keeps it however the
+    # checkout changed since.
+    if npm.startswith("file:"):
+        shutil.rmtree(ROOT / "frontend" / "node_modules" / "civic-engagement", ignore_errors=True)
+    subprocess.run(["npm", "install", npm], cwd=ROOT / "frontend", check=True)
 
 
 if __name__ == "__main__":

@@ -4,11 +4,12 @@ config.py's SiteConfig) plus what the urban ingestion and model need.
 `SITE` is the active site (the core's), typed as an urban one.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import cast
 
 from civic_engagement.config import SITE as _SITE
 from civic_engagement.config import SiteConfig
+from civic_engagement.ingestion.buildings import BuildingDefaults
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -17,22 +18,10 @@ class UrbanSiteConfig(SiteConfig):
     # with a small buffer around the site boundary so they render even if
     # their footprint centroid falls just outside it.
     building_fetch_buffer_m: float
-    default_building_height_m: float
-    # Storey height used to turn OSM `building:levels` into metres, when
-    # there's no explicit `height` tag.
-    building_level_height_m: float
-    # Last-resort heights keyed on the OSM `building` value, for footprints
-    # carrying neither `height` nor `building:levels`.
-    building_kind_default_height_m: dict = field(default_factory=dict)
-
-    # Above this, a building's LiDAR nDSM (surface-minus-terrain height)
-    # varies too much across its own footprint to be a flat roof — see
-    # ingestion/lidar.py.
-    roof_pitch_std_threshold_m: float = 2.0
-    # A pitched roof's rise (ridge above eave) is clamped to this range
-    # rather than trusted at face value — see ingestion/build_baseline.py.
-    roof_min_rise_m: float = 1.5
-    roof_max_rise_m: float = 6.0
+    # Heights and roofs of buildings the data says nothing about, and the
+    # thresholds for reading roofs off LiDAR (see the core's
+    # ingestion/buildings.py).
+    buildings: BuildingDefaults
 
     # How "plant_grove" (and any future area-planting card) scatters its
     # trees within the drawn polygon — see layout.py and geo_utils.grove_points_within.
@@ -70,6 +59,15 @@ _TRENTO_BUILDING_KIND_DEFAULT_HEIGHT_M = {
     "hut": 3.0,
     "kiosk": 3.0,
 }
+
+_TRENTO_BUILDINGS = BuildingDefaults(
+    height_m=10.0,
+    level_height_m=3.2,
+    kind_height_m=_TRENTO_BUILDING_KIND_DEFAULT_HEIGHT_M,
+    roof_pitch_std_threshold_m=2.0,
+    roof_min_rise_m=1.5,
+    roof_max_rise_m=6.0,
+)
 
 SITES: dict[str, SiteConfig] = {
     "piazza_dante": UrbanSiteConfig(
@@ -109,12 +107,7 @@ SITES: dict[str, SiteConfig] = {
         },
         boundary_status="surveyed",
         building_fetch_buffer_m=60,
-        default_building_height_m=10.0,
-        building_level_height_m=3.2,
-        building_kind_default_height_m=_TRENTO_BUILDING_KIND_DEFAULT_HEIGHT_M,
-        roof_pitch_std_threshold_m=2.0,
-        roof_min_rise_m=1.5,
-        roof_max_rise_m=6.0,
+        buildings=_TRENTO_BUILDINGS,
         grove_placement_algorithm="jittered",
         data_dir="data/piazza_dante",
     ),
@@ -182,12 +175,7 @@ SITES: dict[str, SiteConfig] = {
         # yet Bologna needs different heuristics; revisit once real
         # LiDAR/orthophoto data (or a session or two of real use) says
         # otherwise.
-        default_building_height_m=10.0,
-        building_level_height_m=3.2,
-        building_kind_default_height_m=_TRENTO_BUILDING_KIND_DEFAULT_HEIGHT_M,
-        roof_pitch_std_threshold_m=2.0,
-        roof_min_rise_m=1.5,
-        roof_max_rise_m=6.0,
+        buildings=_TRENTO_BUILDINGS,
         grove_placement_algorithm="jittered",
         # Set to False to hide the OSM-inferred crossing stripes/lane lines
         # (e.g. for a demo) until real imagery replaces them.
