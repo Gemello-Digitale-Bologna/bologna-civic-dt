@@ -8,6 +8,7 @@ import time (see tests/reference/capture.py).
 
 import gzip
 import json
+import math
 import os
 import subprocess
 import sys
@@ -19,6 +20,9 @@ ROOT = Path(__file__).resolve().parent.parent
 FIXTURES = ROOT / "tests" / "fixtures" / "reference"
 SITES = sorted(p.name for p in FIXTURES.iterdir() if p.is_dir())
 MAX_REPORTED = 20
+# Floats differ by a ULP or so between platforms (see capture.py's
+# HASH_DIGITS): equal within this, far below any change of the model.
+REL_TOL = 1e-12
 
 
 def _differences(expected, actual, path: str = "") -> list[str]:
@@ -40,6 +44,8 @@ def _differences(expected, actual, path: str = "") -> list[str]:
             label = e.get("id", e.get("t", i)) if isinstance(e, dict) else i
             diffs += _differences(e, a, f"{path}[{label}]")
         return diffs
+    if isinstance(expected, float) and isinstance(actual, float):
+        return [] if math.isclose(expected, actual, rel_tol=REL_TOL, abs_tol=REL_TOL) else [f"{path}: expected {expected!r}, found {actual!r}"]
     return [] if expected == actual else [f"{path}: expected {expected!r}, found {actual!r}"]
 
 

@@ -138,6 +138,24 @@ def _canonical(value) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"))
 
 
+# Significant digits the scene's hash sees: about 1 mm in a coordinate. The
+# maths library differs between platforms (glibc, Apple's) in the last bit
+# of sin, cos, log..., so computed coordinates (a grove's trees, through
+# PROJ) differ by one ULP; rounded, they hash the same (unless a value sits
+# right on a rounding boundary: a chance in some ten million).
+HASH_DIGITS = 10
+
+
+def _rounded(value):
+    if isinstance(value, float):
+        return float(f"{value:.{HASH_DIGITS}g}")
+    if isinstance(value, dict):
+        return {k: _rounded(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_rounded(v) for v in value]
+    return value
+
+
 def capture(interventions: list[Intervention]) -> dict:
     scene.store.list_interventions = lambda session_id="default": list(interventions)
     scene._scenario_cache.clear()
@@ -157,7 +175,7 @@ def capture(interventions: list[Intervention]) -> dict:
             "indicators": response["indicators"],
             "baseline_indicators": response["baseline_indicators"],
             "trees": [e for e in response["elements"] if e["type"] == "tree"],
-            "scene_sha256": hashlib.sha256(_canonical(response).encode()).hexdigest(),
+            "scene_sha256": hashlib.sha256(_canonical(_rounded(response)).encode()).hexdigest(),
         })
     return {"years": years, "series": indicator_series().model_dump(mode="json")}
 
