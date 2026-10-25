@@ -91,7 +91,7 @@ Piazza Dante has **terrain**, from the 2014 LiDAR DTM; Piazza XX Settembre
 is flat, for now:
 
 ```bash
-uv run python -m bologna_civic_dt.ingestion.build_terrain --dtm data/piazza_dante/lidar/dtm_2014.asc
+uv run python -m bologna_civic_dt.ingestion.build_terrain --dtm data/piazza_dante/lidar/dtm.asc
 ```
 
 The grid is shaped under the baseline's streets and paths, level across
@@ -157,5 +157,8 @@ are derived from third-party data:
   [Open Database License](https://www.openstreetmap.org/copyright).
 - **Provincia autonoma di Trento**: the terrain, building heights and roof
   shapes for Piazza Dante from the 2014 LiDAR survey, and roof colours from
-  the 2015 orthophoto. The source rasters are not in the repository (see the
-  core's `civic_engagement/ingestion/lidar.py` and `ortofoto.py`).
+  the 2015 orthophoto. The source rasters are not in the repository: the
+  baseline's build reads them from `data/piazza_dante/lidar/dbm.asc` and
+  `dtm.asc`, and `data/piazza_dante/ortofoto/site.png` and `site.json`, and
+  without them builds the buildings from OSM alone (see the core's
+  `civic_engagement/ingestion/lidar.py` and `ortofoto.py`).

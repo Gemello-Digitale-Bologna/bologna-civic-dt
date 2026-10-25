@@ -6,7 +6,7 @@ Shaped under the baseline's streets and paths, if there's a baseline: the
 DTM's centimetre bumps, harmless on a lawn, make a paved ribbon wobble. So
 build the baseline first (it doesn't need the terrain).
 
-    uv run python -m bologna_civic_dt.ingestion.build_terrain --dtm data/piazza_dante/lidar/dtm_2014.asc
+    uv run python -m bologna_civic_dt.ingestion.build_terrain --dtm data/piazza_dante/lidar/dtm.asc
 """
 
 import json

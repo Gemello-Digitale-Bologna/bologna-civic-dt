@@ -347,7 +347,11 @@
       },
       "properties": {
         "height": 16.0,
-        "building_kind": "yes"
+        "roof_shape": "pitched",
+        "ridge_height_m": 19.2,
+        "ridge_bearing_deg": 80.1,
+        "building_kind": "yes",
+        "roof_color": "#b28968"
       },
       "source": "baseline",
       "intervention_id": null
@@ -463,8 +467,12 @@
         ]
       },
       "properties": {
-        "height": 12.8,
-        "building_kind": "public"
+        "height": 17.8,
+        "roof_shape": "pitched",
+        "ridge_height_m": 21.3,
+        "ridge_bearing_deg": 114.1,
+        "building_kind": "public",
+        "roof_color": "#bc9871"
       },
       "source": "baseline",
       "intervention_id": null
@@ -500,9 +508,12 @@
         ]
       },
       "properties": {
-        "height": 3.2,
+        "height": 22.5,
         "roof_shape": "flat",
-        "building_kind": "office"
+        "ridge_height_m": 28.5,
+        "ridge_bearing_deg": 78.8,
+        "building_kind": "office",
+        "roof_color": "#d8ccb8"
       },
       "source": "baseline",
       "intervention_id": null
@@ -630,8 +641,12 @@
         ]
       },
       "properties": {
-        "height": 12.8,
-        "building_kind": "public"
+        "height": 15.6,
+        "roof_shape": "pitched",
+        "ridge_height_m": 21.6,
+        "ridge_bearing_deg": 13.6,
+        "building_kind": "public",
+        "roof_color": "#9f967a"
       },
       "source": "baseline",
       "intervention_id": null
@@ -687,8 +702,12 @@
         ]
       },
       "properties": {
-        "height": 14.0,
-        "building_kind": "public"
+        "height": 19.3,
+        "roof_shape": "pitched",
+        "ridge_height_m": 23.4,
+        "ridge_bearing_deg": 114.3,
+        "building_kind": "public",
+        "roof_color": "#b6936d"
       },
       "source": "baseline",
       "intervention_id": null
@@ -792,8 +811,12 @@
         ]
       },
       "properties": {
-        "height": 10.0,
-        "building_kind": "yes"
+        "height": 14.7,
+        "roof_shape": "pitched",
+        "ridge_height_m": 20.7,
+        "ridge_bearing_deg": 116.2,
+        "building_kind": "yes",
+        "roof_color": "#a49b80"
       },
       "source": "baseline",
       "intervention_id": null
@@ -853,8 +876,12 @@
         ]
       },
       "properties": {
-        "height": 12.8,
-        "building_kind": "apartments"
+        "height": 15.6,
+        "roof_shape": "hipped",
+        "ridge_height_m": 18.7,
+        "ridge_bearing_deg": 76.6,
+        "building_kind": "apartments",
+        "roof_color": "#8b795a"
       },
       "source": "baseline",
       "intervention_id": null
@@ -894,8 +921,12 @@
         ]
       },
       "properties": {
-        "height": 6.0,
-        "building_kind": "parking"
+        "height": 6.8,
+        "roof_shape": "pitched",
+        "ridge_height_m": 8.7,
+        "ridge_bearing_deg": 167.9,
+        "building_kind": "parking",
+        "roof_color": "#bb926f"
       },
       "source": "baseline",
       "intervention_id": null
@@ -931,8 +962,12 @@
         ]
       },
       "properties": {
-        "height": 12.8,
-        "building_kind": "office"
+        "height": 13.2,
+        "roof_shape": "pitched",
+        "ridge_height_m": 16.6,
+        "ridge_bearing_deg": 61.3,
+        "building_kind": "office",
+        "roof_color": "#9b967b"
       },
       "source": "baseline",
       "intervention_id": null
@@ -1068,8 +1103,12 @@
         ]
       },
       "properties": {
-        "height": 3.2,
-        "building_kind": "train_station"
+        "height": 6.8,
+        "roof_shape": "pitched",
+        "ridge_height_m": 12.8,
+        "ridge_bearing_deg": 115.6,
+        "building_kind": "train_station",
+        "roof_color": "#9e7f5e"
       },
       "source": "baseline",
       "intervention_id": null
@@ -1125,8 +1164,12 @@
         ]
       },
       "properties": {
-        "height": 18.0,
-        "building_kind": "church"
+        "height": 12.0,
+        "roof_shape": "pitched",
+        "ridge_height_m": 18.0,
+        "ridge_bearing_deg": 88.9,
+        "building_kind": "church",
+        "roof_color": "#c2a178"
       },
       "source": "baseline",
       "intervention_id": null
@@ -1198,8 +1241,12 @@
         ]
       },
       "properties": {
-        "height": 6.4,
-        "building_kind": "transportation"
+        "height": 6.1,
+        "roof_shape": "hipped",
+        "ridge_height_m": 11.4,
+        "ridge_bearing_deg": 177.3,
+        "building_kind": "transportation",
+        "roof_color": "#888066"
       },
       "source": "baseline",
       "intervention_id": null
@@ -1239,8 +1286,12 @@
         ]
       },
       "properties": {
-        "height": 10.0,
-        "building_kind": "government"
+        "height": 18.2,
+        "roof_shape": "pitched",
+        "ridge_height_m": 20.4,
+        "ridge_bearing_deg": 23.2,
+        "building_kind": "government",
+        "roof_color": "#9d8e70"
       },
       "source": "baseline",
       "intervention_id": null
@@ -1277,7 +1328,8 @@
       },
       "properties": {
         "height": 3.2,
-        "building_kind": "retail"
+        "building_kind": "retail",
+        "roof_color": "#b7aa91"
       },
       "source": "baseline",
       "intervention_id": null
@@ -1382,7 +1434,8 @@
       },
       "properties": {
         "height": 3.0,
-        "building_kind": "kiosk"
+        "building_kind": "kiosk",
+        "roof_color": "#847a5e"
       },
       "source": "baseline",
       "intervention_id": null
@@ -1438,8 +1491,12 @@
         ]
       },
       "properties": {
-        "height": 19.2,
-        "building_kind": "apartments"
+        "height": 26.4,
+        "roof_shape": "pitched",
+        "ridge_height_m": 32.4,
+        "ridge_bearing_deg": 114.4,
+        "building_kind": "apartments",
+        "roof_color": "#bbaa92"
       },
       "source": "baseline",
       "intervention_id": null
@@ -1483,8 +1540,12 @@
         ]
       },
       "properties": {
-        "height": 16.0,
-        "building_kind": "apartments"
+        "height": 19.1,
+        "roof_shape": "pitched",
+        "ridge_height_m": 22.9,
+        "ridge_bearing_deg": 24.7,
+        "building_kind": "apartments",
+        "roof_color": "#d5c1a3"
       },
       "source": "baseline",
       "intervention_id": null
@@ -1528,8 +1589,12 @@
         ]
       },
       "properties": {
-        "height": 16.0,
-        "building_kind": "hostel"
+        "height": 12.1,
+        "roof_shape": "hipped",
+        "ridge_height_m": 18.1,
+        "ridge_bearing_deg": 81.3,
+        "building_kind": "hostel",
+        "roof_color": "#ab8a67"
       },
       "source": "baseline",
       "intervention_id": null
@@ -1581,8 +1646,12 @@
         ]
       },
       "properties": {
-        "height": 10.0,
-        "building_kind": "yes"
+        "height": 3.0,
+        "roof_shape": "pitched",
+        "ridge_height_m": 4.5,
+        "ridge_bearing_deg": 25.3,
+        "building_kind": "yes",
+        "roof_color": "#9a947b"
       },
       "source": "baseline",
       "intervention_id": null
@@ -1646,8 +1715,12 @@
         ]
       },
       "properties": {
-        "height": 16.0,
-        "building_kind": "yes"
+        "height": 13.1,
+        "roof_shape": "pitched",
+        "ridge_height_m": 18.8,
+        "ridge_bearing_deg": 78.3,
+        "building_kind": "yes",
+        "roof_color": "#c0946f"
       },
       "source": "baseline",
       "intervention_id": null
@@ -1691,8 +1764,12 @@
         ]
       },
       "properties": {
-        "height": 16.0,
-        "building_kind": "apartments"
+        "height": 16.2,
+        "roof_shape": "pitched",
+        "ridge_height_m": 20.8,
+        "ridge_bearing_deg": 76.5,
+        "building_kind": "apartments",
+        "roof_color": "#ac9879"
       },
       "source": "baseline",
       "intervention_id": null
@@ -1732,8 +1809,12 @@
         ]
       },
       "properties": {
-        "height": 19.2,
-        "building_kind": "yes"
+        "height": 17.2,
+        "roof_shape": "pitched",
+        "ridge_height_m": 20.7,
+        "ridge_bearing_deg": 84.5,
+        "building_kind": "yes",
+        "roof_color": "#be9672"
       },
       "source": "baseline",
       "intervention_id": null
@@ -1773,9 +1854,12 @@
         ]
       },
       "properties": {
-        "height": 9.6,
+        "height": 8.6,
         "roof_shape": "pyramidal",
-        "building_kind": "government"
+        "ridge_height_m": 11.0,
+        "ridge_bearing_deg": 169.6,
+        "building_kind": "government",
+        "roof_color": "#dcd8d1"
       },
       "source": "baseline",
       "intervention_id": null
@@ -1843,8 +1927,12 @@
         ]
       },
       "properties": {
-        "height": 18.0,
-        "building_kind": "church"
+        "height": 19.1,
+        "roof_shape": "pitched",
+        "ridge_height_m": 24.4,
+        "ridge_bearing_deg": 170.2,
+        "building_kind": "church",
+        "roof_color": "#8a785a"
       },
       "source": "baseline",
       "intervention_id": null
@@ -1900,9 +1988,10 @@
         ]
       },
       "properties": {
-        "height": 6.4,
+        "height": 7.4,
         "roof_shape": "skillion",
-        "building_kind": "office"
+        "building_kind": "office",
+        "roof_color": "#ab987a"
       },
       "source": "baseline",
       "intervention_id": null
@@ -1966,8 +2055,12 @@
         ]
       },
       "properties": {
-        "height": 10.0,
-        "building_kind": "yes"
+        "height": 12.7,
+        "roof_shape": "pitched",
+        "ridge_height_m": 17.7,
+        "ridge_bearing_deg": 2.4,
+        "building_kind": "yes",
+        "roof_color": "#85775a"
       },
       "source": "baseline",
       "intervention_id": null
@@ -2031,9 +2124,11 @@
         ]
       },
       "properties": {
-        "height": 9.6,
+        "height": 14.2,
         "roof_shape": "hipped",
-        "building_kind": "office"
+        "ridge_height_m": 20.2,
+        "building_kind": "office",
+        "roof_color": "#c4a379"
       },
       "source": "baseline",
       "intervention_id": null
@@ -2077,8 +2172,12 @@
         ]
       },
       "properties": {
-        "height": 12.8,
-        "building_kind": "office"
+        "height": 15.4,
+        "roof_shape": "pitched",
+        "ridge_height_m": 19.1,
+        "ridge_bearing_deg": 170.3,
+        "building_kind": "office",
+        "roof_color": "#99795b"
       },
       "source": "baseline",
       "intervention_id": null
@@ -2126,8 +2225,12 @@
         ]
       },
       "properties": {
-        "height": 9.6,
-        "building_kind": "public"
+        "height": 15.0,
+        "roof_shape": "pitched",
+        "ridge_height_m": 20.2,
+        "ridge_bearing_deg": 170.2,
+        "building_kind": "public",
+        "roof_color": "#ae8b68"
       },
       "source": "baseline",
       "intervention_id": null
@@ -2175,8 +2278,12 @@
         ]
       },
       "properties": {
-        "height": 10.0,
-        "building_kind": "yes"
+        "height": 3.8,
+        "roof_shape": "pitched",
+        "ridge_height_m": 5.9,
+        "ridge_bearing_deg": 81.3,
+        "building_kind": "yes",
+        "roof_color": "#5b674a"
       },
       "source": "baseline",
       "intervention_id": null
@@ -2216,8 +2323,12 @@
         ]
       },
       "properties": {
-        "height": 10.0,
-        "building_kind": "yes"
+        "height": 4.3,
+        "roof_shape": "pitched",
+        "ridge_height_m": 7.1,
+        "ridge_bearing_deg": 116.1,
+        "building_kind": "yes",
+        "roof_color": "#a9906b"
       },
       "source": "baseline",
       "intervention_id": null
@@ -2253,8 +2364,12 @@
         ]
       },
       "properties": {
-        "height": 15.0,
-        "building_kind": "apartments"
+        "height": 17.0,
+        "roof_shape": "pitched",
+        "ridge_height_m": 20.1,
+        "ridge_bearing_deg": 70.4,
+        "building_kind": "apartments",
+        "roof_color": "#bdac8d"
       },
       "source": "baseline",
       "intervention_id": null
@@ -2290,8 +2405,12 @@
         ]
       },
       "properties": {
-        "height": 10.0,
-        "building_kind": "yes"
+        "height": 15.2,
+        "roof_shape": "hipped",
+        "ridge_height_m": 17.0,
+        "ridge_bearing_deg": 169.4,
+        "building_kind": "yes",
+        "roof_color": "#cea880"
       },
       "source": "baseline",
       "intervention_id": null
@@ -2351,8 +2470,12 @@
         ]
       },
       "properties": {
-        "height": 10.0,
-        "building_kind": "yes"
+        "height": 9.3,
+        "roof_shape": "pitched",
+        "ridge_height_m": 15.3,
+        "ridge_bearing_deg": 0.0,
+        "building_kind": "yes",
+        "roof_color": "#736a51"
       },
       "source": "baseline",
       "intervention_id": null
@@ -2512,9 +2635,12 @@
         ]
       },
       "properties": {
-        "height": 16.0,
+        "height": 15.0,
         "roof_shape": "gabled",
-        "building_kind": "apartments"
+        "ridge_height_m": 21.0,
+        "ridge_bearing_deg": 172.4,
+        "building_kind": "apartments",
+        "roof_color": "#ac9471"
       },
       "source": "baseline",
       "intervention_id": null
@@ -2558,8 +2684,12 @@
         ]
       },
       "properties": {
-        "height": 12.8,
-        "building_kind": "office"
+        "height": 17.0,
+        "roof_shape": "pitched",
+        "ridge_height_m": 20.1,
+        "ridge_bearing_deg": 177.7,
+        "building_kind": "office",
+        "roof_color": "#c39a71"
       },
       "source": "baseline",
       "intervention_id": null
@@ -2619,8 +2749,12 @@
         ]
       },
       "properties": {
-        "height": 12.8,
-        "building_kind": "yes"
+        "height": 18.0,
+        "roof_shape": "pitched",
+        "ridge_height_m": 24.0,
+        "ridge_bearing_deg": 78.5,
+        "building_kind": "yes",
+        "roof_color": "#b29d7a"
       },
       "source": "baseline",
       "intervention_id": null
@@ -2660,8 +2794,12 @@
         ]
       },
       "properties": {
-        "height": 10.0,
-        "building_kind": "government"
+        "height": 12.1,
+        "roof_shape": "pitched",
+        "ridge_height_m": 18.1,
+        "ridge_bearing_deg": 111.7,
+        "building_kind": "government",
+        "roof_color": "#55503e"
       },
       "source": "baseline",
       "intervention_id": null
@@ -2713,8 +2851,12 @@
         ]
       },
       "properties": {
-        "height": 12.8,
-        "building_kind": "office"
+        "height": 16.9,
+        "roof_shape": "pitched",
+        "ridge_height_m": 19.4,
+        "ridge_bearing_deg": 78.9,
+        "building_kind": "office",
+        "roof_color": "#ba9c79"
       },
       "source": "baseline",
       "intervention_id": null
@@ -2766,8 +2908,12 @@
         ]
       },
       "properties": {
-        "height": 16.0,
-        "building_kind": "apartments"
+        "height": 18.1,
+        "roof_shape": "pitched",
+        "ridge_height_m": 20.9,
+        "ridge_bearing_deg": 23.8,
+        "building_kind": "apartments",
+        "roof_color": "#877c63"
       },
       "source": "baseline",
       "intervention_id": null
@@ -2887,9 +3033,11 @@
         ]
       },
       "properties": {
-        "height": 12.8,
+        "height": 17.3,
         "roof_shape": "hipped",
-        "building_kind": "yes"
+        "ridge_height_m": 20.2,
+        "building_kind": "yes",
+        "roof_color": "#b5926c"
       },
       "source": "baseline",
       "intervention_id": null
@@ -2985,8 +3133,12 @@
         ]
       },
       "properties": {
-        "height": 14.0,
-        "building_kind": "office"
+        "height": 11.9,
+        "roof_shape": "pitched",
+        "ridge_height_m": 17.9,
+        "ridge_bearing_deg": 81.3,
+        "building_kind": "office",
+        "roof_color": "#8d8163"
       },
       "source": "baseline",
       "intervention_id": null
@@ -3134,8 +3286,12 @@
         ]
       },
       "properties": {
-        "height": 19.2,
-        "building_kind": "apartments"
+        "height": 15.9,
+        "roof_shape": "pitched",
+        "ridge_height_m": 20.5,
+        "ridge_bearing_deg": 27.7,
+        "building_kind": "apartments",
+        "roof_color": "#a39e83"
       },
       "source": "baseline",
       "intervention_id": null
@@ -3187,8 +3343,12 @@
         ]
       },
       "properties": {
-        "height": 10.0,
-        "building_kind": "yes"
+        "height": 13.8,
+        "roof_shape": "pitched",
+        "ridge_height_m": 19.8,
+        "ridge_bearing_deg": 81.9,
+        "building_kind": "yes",
+        "roof_color": "#9f9072"
       },
       "source": "baseline",
       "intervention_id": null
@@ -3260,8 +3420,12 @@
         ]
       },
       "properties": {
-        "height": 16.0,
-        "building_kind": "yes"
+        "height": 13.8,
+        "roof_shape": "pitched",
+        "ridge_height_m": 18.7,
+        "ridge_bearing_deg": 91.0,
+        "building_kind": "yes",
+        "roof_color": "#b28f6a"
       },
       "source": "baseline",
       "intervention_id": null
@@ -3305,8 +3469,12 @@
         ]
       },
       "properties": {
-        "height": 10.0,
-        "building_kind": "yes"
+        "height": 13.2,
+        "roof_shape": "pitched",
+        "ridge_height_m": 17.2,
+        "ridge_bearing_deg": 90.3,
+        "building_kind": "yes",
+        "roof_color": "#938462"
       },
       "source": "baseline",
       "intervention_id": null
@@ -3358,8 +3526,12 @@
         ]
       },
       "properties": {
-        "height": 10.0,
-        "building_kind": "yes"
+        "height": 18.3,
+        "roof_shape": "pitched",
+        "ridge_height_m": 21.9,
+        "ridge_bearing_deg": 91.0,
+        "building_kind": "yes",
+        "roof_color": "#b09b7a"
       },
       "source": "baseline",
       "intervention_id": null
@@ -3471,8 +3643,12 @@
         ]
       },
       "properties": {
-        "height": 4.0,
-        "building_kind": "roof"
+        "height": 3.8,
+        "roof_shape": "pitched",
+        "ridge_height_m": 6.2,
+        "ridge_bearing_deg": 121.1,
+        "building_kind": "roof",
+        "roof_color": "#e0dbd2"
       },
       "source": "baseline",
       "intervention_id": null
@@ -3552,8 +3728,12 @@
         ]
       },
       "properties": {
-        "height": 10.0,
-        "building_kind": "yes"
+        "height": 23.9,
+        "roof_shape": "pitched",
+        "ridge_height_m": 29.9,
+        "ridge_bearing_deg": 76.0,
+        "building_kind": "yes",
+        "roof_color": "#d8cdb5"
       },
       "source": "baseline",
       "intervention_id": null
@@ -3729,8 +3909,10 @@
         ]
       },
       "properties": {
-        "height": 4.0,
-        "building_kind": "roof"
+        "height": 5.7,
+        "roof_shape": "flat",
+        "building_kind": "roof",
+        "roof_color": "#867054"
       },
       "source": "baseline",
       "intervention_id": null
@@ -3786,8 +3968,10 @@
         ]
       },
       "properties": {
-        "height": 4.0,
-        "building_kind": "roof"
+        "height": 5.9,
+        "roof_shape": "flat",
+        "building_kind": "roof",
+        "roof_color": "#a88866"
       },
       "source": "baseline",
       "intervention_id": null
@@ -3847,8 +4031,12 @@
         ]
       },
       "properties": {
-        "height": 9.6,
-        "building_kind": "apartments"
+        "height": 13.5,
+        "roof_shape": "pitched",
+        "ridge_height_m": 19.5,
+        "ridge_bearing_deg": 78.3,
+        "building_kind": "apartments",
+        "roof_color": "#ba9572"
       },
       "source": "baseline",
       "intervention_id": null
@@ -3916,8 +4104,10 @@
         ]
       },
       "properties": {
-        "height": 4.0,
-        "building_kind": "roof"
+        "height": 5.1,
+        "roof_shape": "flat",
+        "building_kind": "roof",
+        "roof_color": "#ad8f6c"
       },
       "source": "baseline",
       "intervention_id": null
@@ -3961,8 +4151,12 @@
         ]
       },
       "properties": {
-        "height": 10.0,
-        "building_kind": "yes"
+        "height": 2.9,
+        "roof_shape": "pitched",
+        "ridge_height_m": 4.4,
+        "ridge_bearing_deg": 119.9,
+        "building_kind": "yes",
+        "roof_color": "#d4c6ac"
       },
       "source": "baseline",
       "intervention_id": null
@@ -4078,8 +4272,10 @@
         ]
       },
       "properties": {
-        "height": 4.0,
-        "building_kind": "roof"
+        "height": 4.7,
+        "roof_shape": "flat",
+        "building_kind": "roof",
+        "roof_color": "#c7b799"
       },
       "source": "baseline",
       "intervention_id": null
@@ -4115,8 +4311,12 @@
         ]
       },
       "properties": {
-        "height": 10.0,
-        "building_kind": "yes"
+        "height": 6.0,
+        "roof_shape": "pitched",
+        "ridge_height_m": 11.3,
+        "ridge_bearing_deg": 179.8,
+        "building_kind": "yes",
+        "roof_color": "#9a8363"
       },
       "source": "baseline",
       "intervention_id": null
@@ -4156,8 +4356,10 @@
         ]
       },
       "properties": {
-        "height": 4.0,
-        "building_kind": "roof"
+        "height": 4.4,
+        "roof_shape": "flat",
+        "building_kind": "roof",
+        "roof_color": "#d9cab0"
       },
       "source": "baseline",
       "intervention_id": null
@@ -4213,8 +4415,10 @@
         ]
       },
       "properties": {
-        "height": 4.0,
-        "building_kind": "roof"
+        "height": 4.3,
+        "roof_shape": "flat",
+        "building_kind": "roof",
+        "roof_color": "#dad7d5"
       },
       "source": "baseline",
       "intervention_id": null
@@ -4331,7 +4535,8 @@
       },
       "properties": {
         "height": 4.0,
-        "building_kind": "roof"
+        "building_kind": "roof",
+        "roof_color": "#9a7959"
       },
       "source": "baseline",
       "intervention_id": null
@@ -4440,7 +4645,8 @@
       },
       "properties": {
         "height": 4.0,
-        "building_kind": "roof"
+        "building_kind": "roof",
+        "roof_color": "#cfbea2"
       },
       "source": "baseline",
       "intervention_id": null
@@ -4544,8 +4750,10 @@
         ]
       },
       "properties": {
-        "height": 4.0,
-        "building_kind": "roof"
+        "height": 4.3,
+        "roof_shape": "flat",
+        "building_kind": "roof",
+        "roof_color": "#ccbca2"
       },
       "source": "baseline",
       "intervention_id": null
@@ -4585,8 +4793,10 @@
         ]
       },
       "properties": {
-        "height": 4.0,
-        "building_kind": "roof"
+        "height": 5.7,
+        "roof_shape": "flat",
+        "building_kind": "roof",
+        "roof_color": "#6e684c"
       },
       "source": "baseline",
       "intervention_id": null
@@ -29387,6 +29597,7 @@
         ]
       },
       "cover_type": "water",
+      "properties": {},
       "source": "baseline",
       "intervention_id": null
     },
@@ -29846,6 +30057,7 @@
         ]
       },
       "cover_type": "lawn",
+      "properties": {},
       "source": "baseline",
       "intervention_id": null
     },
@@ -29879,6 +30091,7 @@
         ]
       },
       "cover_type": "lawn",
+      "properties": {},
       "source": "baseline",
       "intervention_id": null
     },
@@ -29908,6 +30121,7 @@
         ]
       },
       "cover_type": "lawn",
+      "properties": {},
       "source": "baseline",
       "intervention_id": null
     },
@@ -29937,6 +30151,7 @@
         ]
       },
       "cover_type": "lawn",
+      "properties": {},
       "source": "baseline",
       "intervention_id": null
     },
@@ -30528,6 +30743,7 @@
         ]
       },
       "cover_type": "paving",
+      "properties": {},
       "source": "baseline",
       "intervention_id": null
     }

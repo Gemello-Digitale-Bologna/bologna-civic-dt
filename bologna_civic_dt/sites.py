@@ -4,7 +4,7 @@ config.py's SiteConfig) plus what the urban ingestion and model need.
 `SITE` is the active site (the core's), typed as an urban one.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import cast
 
 from civic_engagement.config import SITE as _SITE
@@ -38,6 +38,12 @@ class UrbanSiteConfig(SiteConfig):
     # baseline rebuild.
     show_road_markings: bool = True
 
+    # OSM points (trees, benches, streetlights, ...) left out of the
+    # baseline, as "node/<id>": why. Real objects, but in the way of
+    # something (a demo's view): kept here, rather than deleted from
+    # baseline.json by hand, so that a rebuild leaves them out too.
+    removed_osm: dict[str, str] = field(default_factory=dict)
+
 
 _TRENTO_BUILDING_KIND_DEFAULT_HEIGHT_M = {
     "church": 18.0,
@@ -67,6 +73,10 @@ _TRENTO_BUILDINGS = BuildingDefaults(
     roof_pitch_std_threshold_m=2.0,
     roof_min_rise_m=1.5,
     roof_max_rise_m=6.0,
+    # The eave and the ridge from the roof's own LiDAR samples: the
+    # footprint's 90th percentile is near a pitched roof's ridge, leaving the
+    # roofs almost flat.
+    roof_samples=True,
 )
 
 SITES: dict[str, SiteConfig] = {
@@ -110,6 +120,11 @@ SITES: dict[str, SiteConfig] = {
         buildings=_TRENTO_BUILDINGS,
         grove_placement_algorithm="jittered",
         data_dir="data/piazza_dante",
+        removed_osm={
+            "node/1012709635": "streetlight by the gravel path, in the demo's way",
+            "node/1012709684": "streetlight by the gravel path, in the demo's way",
+            "node/8916013784": "young birch cut in year 1: its stump stood in the demo's view",
+        },
     ),
     "piazza_xx_settembre": UrbanSiteConfig(
         site_id="piazza_xx_settembre",

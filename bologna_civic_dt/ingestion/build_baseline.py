@@ -12,6 +12,7 @@ from pathlib import Path
 import geopandas as gpd
 import pandas as pd
 from shapely.geometry import LineString, MultiLineString, Point
+from shapely.geometry.base import BaseGeometry
 from shapely.ops import substring, unary_union
 
 from bologna_civic_dt.sites import SITE
@@ -174,6 +175,19 @@ def _polygonal(geom):
     return None
 
 
+def fetch_kept_points(polygon: BaseGeometry, tags: dict) -> gpd.GeoDataFrame:
+    """`fetch_points`, without the site's removed points (see sites.py's
+    `removed_osm`); the others keep their row, and so their element id."""
+    points = fetch_points(polygon, tags)
+    if len(points) == 0:
+        return points
+    keys = points["element"] + "/" + points["id"].astype(str)
+    removed = keys.isin(SITE.removed_osm)
+    for key in keys[removed]:
+        print(f"Leaving out {key}: {SITE.removed_osm[key]}")
+    return points[~removed]
+
+
 def build() -> BaselineScene:
     site_polygon = geojson_to_geometry(SITE.site_boundary_geojson)
     fetch_area = buffer_polygon_m(site_polygon, SITE.building_fetch_buffer_m)
@@ -194,7 +208,7 @@ def build() -> BaselineScene:
     print("Fetching streets...")
     streets = fetch_streets(fetch_area)
     print("Fetching trees...")
-    trees = fetch_points(fetch_area, {"natural": "tree"})
+    trees = fetch_kept_points(fetch_area, {"natural": "tree"})
 
     # Drop trees that land inside a building footprint or a water body — OSM
     # digitises tree points and area boundaries independently, and the two
@@ -215,17 +229,17 @@ def build() -> BaselineScene:
         trees = trees[~inside]
 
     print("Fetching benches...")
-    benches = fetch_points(fetch_area, {"amenity": "bench"})
+    benches = fetch_kept_points(fetch_area, {"amenity": "bench"})
     print("Fetching water features...")
-    water_features = fetch_points(fetch_area, {"amenity": "fountain"})
+    water_features = fetch_kept_points(fetch_area, {"amenity": "fountain"})
     print("Fetching streetlights...")
-    streetlights = fetch_points(fetch_area, {"highway": "street_lamp"})
+    streetlights = fetch_kept_points(fetch_area, {"highway": "street_lamp"})
     print("Fetching crossings...")
-    crossings = fetch_points(fetch_area, {"highway": "crossing"})
+    crossings = fetch_kept_points(fetch_area, {"highway": "crossing"})
     print("Fetching crossing footways...")
     footway_crossings = fetch_crossing_footways(fetch_area)
     print("Fetching traffic signals...")
-    traffic_signals = fetch_points(fetch_area, {"highway": "traffic_signals"})
+    traffic_signals = fetch_kept_points(fetch_area, {"highway": "traffic_signals"})
 
     elements: list[DiscreteElement] = building_elements(buildings, SITE.buildings, lidar, ortofoto)
 
