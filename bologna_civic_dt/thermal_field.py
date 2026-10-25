@@ -76,6 +76,7 @@ from bologna_civic_dt.parameters import (
     WATER_HALF_DISTANCE_M,
 )
 from bologna_civic_dt.solar import HOURS, Day
+from civic_engagement.config import cpus
 
 # --- axes ---------------------------------------------------------------------------
 
@@ -186,8 +187,10 @@ def sun_exposure(altitude, azimuth, building_height, crown_low, crown_high, exti
         out[traced] = np.where(blocked, 0.0, np.exp(-depth / sin_a))
         return out
 
-    # Hours are independent, and numpy mostly runs without the GIL.
-    with ThreadPoolExecutor() as pool:
+    # Hours are independent, and numpy mostly runs without the GIL. As many
+    # threads as the CPUs the process may use, not the machine's (a
+    # container's quota, see civic_engagement.config.cpus).
+    with ThreadPoolExecutor(max_workers=cpus()) as pool:
         out = np.stack(list(pool.map(one_hour, altitude, azimuth)))
     return out.reshape(len(altitude), gy, gx).astype(float)
 

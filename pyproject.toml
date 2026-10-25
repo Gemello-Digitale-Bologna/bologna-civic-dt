@@ -33,4 +33,4 @@ module-root = ""
 
 [tool.uv.sources]
 # The core, at a commit of its repository: set it with scripts/core.py.
-civic-engagement = { git = "https://github.com/fbk-most/civic-engagement", rev = "cf56dc8ded04fb877d3ac66531452b2caefd38b0" }
+civic-engagement = { git = "https://github.com/fbk-most/civic-engagement", rev = "0c13c9081a7221f29152f836ddfd48cd503d2ded" }

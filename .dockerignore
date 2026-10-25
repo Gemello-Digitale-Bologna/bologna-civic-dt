@@ -1,0 +1,17 @@
+# What the image doesn't need (see the Dockerfile).
+.git
+.venv
+.pytest_cache
+.ruff_cache
+cache
+docs
+tests
+frontend/node_modules
+frontend/dist
+# The ingestion's inputs: what they give is in the committed baselines and
+# terrain grids.
+data/*/lidar
+data/*/ortofoto
+# Local sessions, and the ones set aside.
+data/*/session.json
+data/*/session.*.json

@@ -24,9 +24,10 @@ const resolve = localCore
   : undefined
 const fs = localCore ? { allow: [here, localCore] } : undefined
 
-// The backend, for both the dev server and the production preview.
+// The backend, for both the dev server and the production preview: on
+// :8000 unless CIVIC_ENGAGEMENT_BACKEND says otherwise (see the README).
 const proxy = {
-  '/api': 'http://localhost:8000',
+  '/api': process.env.CIVIC_ENGAGEMENT_BACKEND ?? 'http://localhost:8000',
 }
 
 // https://vite.dev/config/

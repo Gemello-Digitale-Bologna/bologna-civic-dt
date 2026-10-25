@@ -62,7 +62,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "civic-digital-twins", specifier = "==0.12.0" },
-    { name = "civic-engagement", git = "https://github.com/fbk-most/civic-engagement?rev=cf56dc8ded04fb877d3ac66531452b2caefd38b0" },
+    { name = "civic-engagement", git = "https://github.com/fbk-most/civic-engagement?rev=0c13c9081a7221f29152f836ddfd48cd503d2ded" },
     { name = "geopandas", specifier = ">=1.1.4" },
     { name = "numpy" },
     { name = "osmnx", specifier = ">=2.1.0" },
@@ -158,7 +158,7 @@ wheels = [
 [[package]]
 name = "civic-engagement"
 version = "0.1.0"
-source = { git = "https://github.com/fbk-most/civic-engagement?rev=cf56dc8ded04fb877d3ac66531452b2caefd38b0#cf56dc8ded04fb877d3ac66531452b2caefd38b0" }
+source = { git = "https://github.com/fbk-most/civic-engagement?rev=0c13c9081a7221f29152f836ddfd48cd503d2ded#0c13c9081a7221f29152f836ddfd48cd503d2ded" }
 dependencies = [
     { name = "fastapi" },
     { name = "geopandas" },

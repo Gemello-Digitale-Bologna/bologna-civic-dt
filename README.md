@@ -145,6 +145,62 @@ npm run build && npm run preview   # http://localhost:4173, same proxy
 The interface, the 3D view and the URL parameters are the core's: see its
 README.
 
+If the ports are taken: the backend's is uvicorn's `--port`, the app's is
+Vite's, and `CIVIC_ENGAGEMENT_BACKEND` tells the app where the backend is
+(for both `dev` and `preview`):
+
+```bash
+uv run uvicorn bologna_civic_dt.main:app --reload --port 8010
+cd frontend && CIVIC_ENGAGEMENT_BACKEND=http://localhost:8010 npm run dev -- --port 5180
+```
+
+## Container
+
+The app in one container (the `Dockerfile`): the API and the built
+frontend on port 8080, as a non-root user. With podman, or docker alike:
+
+```bash
+podman build -t bologna-civic-dt .
+podman run --rm -p 8080:8080 bologna-civic-dt    # http://127.0.0.1:8080
+podman run --rm -p 8080:8080 -e CIVIC_ENGAGEMENT_SITE=piazza_xx_settembre bologna-civic-dt
+```
+
+`127.0.0.1` rather than `localhost`: rootless podman forwards IPv4 only,
+and `localhost` may go to IPv6 first. The session lives in the container
+(in `/tmp`) and goes with it. The image
+has the baselines and terrain grids, not the rasters they were built from.
+
+The build fetches the core at the commit the pack pins. With a local core
+(`scripts/core.py local`), both pins point at `/civic-engagement` inside the
+build: mount the checkout there.
+
+```bash
+podman build --security-opt label=disable \
+  -v "$(realpath ../civic-engagement)":/civic-engagement:ro -t bologna-civic-dt .
+```
+
+A tag `v<version>` publishes the image on GitHub's registry,
+`ghcr.io/gemello-digitale-bologna/bologna-civic-dt:<version>`
+(`.github/workflows/image.yml`); run by hand on a branch (Actions → Image →
+Run workflow), the workflow publishes it as `:sha-<commit>`. Deploying it on
+the DigitalHub platform: `docs/deploy-digitalhub.md` and
+`scripts/deploy_digitalhub.py`.
+
+For an experiment, without a commit or a tag, build and push from here — a
+token with `write:packages` as the password — under a tag of its own,
+`exp-<name>` (with a local core, the build mounts it, as above):
+
+```bash
+podman build -t ghcr.io/gemello-digitale-bologna/bologna-civic-dt:exp-20261025a .
+podman login ghcr.io -u <github-user>
+podman push ghcr.io/gemello-digitale-bologna/bologna-civic-dt:exp-20261025a
+```
+
+Such an image holds whatever the working copy (and a local core) held:
+nothing in the repository says what. Fine to try things out, not for a
+workshop. Each experiment a new tag: the platform pulls an image only if
+its node doesn't have that tag yet (or deploy with `--pull-always`).
+
 ## Licence and data sources
 
 The code is released under the [Apache License 2.0](LICENSE).

@@ -12,7 +12,7 @@
     "typecheck": "tsc -p tsconfig.app.json --noEmit"
   },
   "dependencies": {
-    "civic-engagement": "github:fbk-most/civic-engagement#cf56dc8ded04fb877d3ac66531452b2caefd38b0",
+    "civic-engagement": "github:fbk-most/civic-engagement#0c13c9081a7221f29152f836ddfd48cd503d2ded",
     "three": "^0.185.1"
   },
   "devDependencies": {
