@@ -217,6 +217,11 @@ overlaps, are functors over Shapely (`geometry.py`). Workarounds for current fra
 such as empty axes and geometry passed as bytes, are collected in `cdt_compat.py` as candidates
 for improving the framework. `civic_engagement/scene.py` caches the evaluation and pairs it with "as is".
 
+Not yet used: uncertainty. Every value is a constant, evaluated with a single sample. And each
+baseline tree's felling year (`cut_year`) is drawn once, at ingestion, and stored in the
+baseline: drawing it in the model, as a random quantity, would be the first step towards
+ensembles.
+
 ## 7. Layer 4: spatial fields, the bridge
 
 Many of the questions citizens ask depend on **where** and **when**. "Is it hot?" depends on which

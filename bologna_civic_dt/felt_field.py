@@ -41,10 +41,11 @@ class Field:
 
 
 # The fields asked about most recently (about 5 MB each): the sun control's
-# date as the year slider moves, and the indicators' reference moment. Side
-# by side, but not too many at once: each takes a few hundred MB while it
+# date as the year slider moves, and the indicators' reference moment —
+# for each team (about a dozen each, for 5 teams: some 300 MB). Side by
+# side, but not too many at once: each takes a few hundred MB while it
 # runs, and its sun rays already spread over every core.
-FIELD_CACHE_SIZE = 24
+FIELD_CACHE_SIZE = 60
 FIELDS_AT_ONCE = 2
 _fields: ComputeCache[Field] = ComputeCache(FIELD_CACHE_SIZE, FIELDS_AT_ONCE)
 
@@ -105,10 +106,10 @@ OFFSET_C = -40.0
 NODATA = 255
 
 
-def thermal_field(t: int, month: int, day: int, as_is: bool = False, session_id: str = "default") -> ThermalFieldResponse:
+def thermal_field(t: int, month: int, day: int, as_is: bool = False, team: str = "default") -> ThermalFieldResponse:
     from civic_engagement.store.state import store
 
-    interventions = [] if as_is else store.list_interventions(session_id)
+    interventions = [] if as_is else store.list_interventions(team)
     field = _field(interventions, t, calendar_date(t, month, day))
     return ThermalFieldResponse(
         t=t,

@@ -154,6 +154,42 @@ uv run uvicorn bologna_civic_dt.main:app --reload --port 8010
 cd frontend && CIVIC_ENGAGEMENT_BACKEND=http://localhost:8010 npm run dev -- --port 5180
 ```
 
+## Teams
+
+By default the app has one shared scene and no login, as above. With
+`CIVIC_ENGAGEMENT_AUTH=pin`, several teams work on the same site, each
+member entering with a PIN that says the team and the role (editor or
+viewer), set up by a manager with `civic-engagement-admin`: see the core's
+README, "Teams". This pack's PINs are an Italian word and three digits,
+`gabbiano515` (`bologna_civic_dt/pins.py`, the words in
+`bologna_civic_dt/words_it.txt`).
+
+To try it locally: the backend with teams, the app as usual, then a team
+with an editor and its viewers.
+
+```bash
+# The backend (the state in a directory of its own, not data/<site>/)
+CIVIC_ENGAGEMENT_AUTH=pin CIVIC_ENGAGEMENT_STATE=/tmp/teams-state \
+CIVIC_ENGAGEMENT_PIN_SECRET=local-secret-0123456789 \
+CIVIC_ENGAGEMENT_MANAGER_USER=manager CIVIC_ENGAGEMENT_MANAGER_PASSWORD=password \
+CIVIC_ENGAGEMENT_TRUSTED_PROXY=0 \
+  uv run uvicorn bologna_civic_dt.main:app --reload
+
+# The app: http://localhost:5173, on the PIN screen
+cd frontend && npm run dev
+
+# A team, as the manager
+export CIVIC_ENGAGEMENT_ADMIN_URL=http://localhost:8000 \
+  CIVIC_ENGAGEMENT_MANAGER_USER=manager CIVIC_ENGAGEMENT_MANAGER_PASSWORD=password
+uv run civic-engagement-admin team create "Tavolo 1"
+uv run civic-engagement-admin member add tavolo-1 "Anna" --editor   # prints Anna's PIN
+uv run civic-engagement-admin member add tavolo-1 --viewers         # the viewers' PIN
+uv run civic-engagement-admin --help
+```
+
+The PIN secret must stay the same across restarts: another one makes every
+PIN and every open window's token invalid.
+
 ## Container
 
 The app in one container (the `Dockerfile`): the API and the built

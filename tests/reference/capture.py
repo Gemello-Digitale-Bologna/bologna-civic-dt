@@ -157,14 +157,17 @@ def _rounded(value):
 
 
 def capture(interventions: list[Intervention]) -> dict:
-    scene.store.list_interventions = lambda session_id="default": list(interventions)
+    scene.store.list_interventions = lambda team="default": list(interventions)
     scene._scenario_cache.clear()
 
     years = []
     for t in range(MIN_T, MAX_T + 1):
         # The revision depends on the backend's boot, not on the model; the
         # site's name is only for the window title.
-        response = current_scene(t).model_dump(mode="json", exclude={"revision", "site_name"})
+        # Not what's recorded: the revision, the site's name, the cards' authors.
+        response = current_scene(t).model_dump(
+            mode="json", exclude={"revision": True, "site_name": True, "interventions": {"__all__": {"created_by", "updated_by"}}}
+        )
         # Served apart since the scene stopped waiting for them: put back
         # where they were recorded, so the same numbers are compared.
         deferred = deferred_indicators(t).model_dump(mode="json")

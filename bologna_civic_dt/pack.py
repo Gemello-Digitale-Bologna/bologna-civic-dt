@@ -19,6 +19,7 @@ from bologna_civic_dt.indicators import DESCRIPTORS, indicator_values
 from bologna_civic_dt.layout import Layout, TreeSlot, build_layout
 from bologna_civic_dt.model import UrbanEvaluator, UrbanOutput, build_model
 from bologna_civic_dt.parameters import HORIZON_YEARS
+from bologna_civic_dt.pins import WordPin
 from bologna_civic_dt.sites import DEFAULT_SITE, SITE, SITES
 from bologna_civic_dt.trees import species_traits
 from bologna_civic_dt.types import COVER_TYPE_SET, ELEMENT_TYPES
@@ -107,6 +108,7 @@ class UrbanPack(DomainPack):
     element_types = ELEMENT_TYPES
     cover_types = COVER_TYPE_SET
     indicators = DESCRIPTORS
+    pin_format = WordPin()
 
     def evaluate(self, baseline: BaselineScene, interventions: list[Intervention]) -> Evaluated:
         layout = build_layout(baseline, interventions)

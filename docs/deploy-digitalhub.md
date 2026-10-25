@@ -1,11 +1,11 @@
 # Deploying the urban app on DigitalHub Bologna
 
-**Status: phase 1 (packaging) built, not yet deployed; teams designed** (October 2026).
+**Status: phases 1 (packaging) and 2 (teams) built, not yet deployed** (October 2026).
 
 The urban app — the core with this pack — as containers on the DigitalHub
 instance *digitalhub-bologna*, for teams working on a site. What the core
-provides (teams, PINs, the state store, the container's contract) is in
-the core's `docs/design-multi-team.md`; how any pack runs on DigitalHub, the
+provides (teams, PINs, the state store) is in the core's README, "Teams";
+the container's contract and how any pack runs on DigitalHub, the
 platform's constraints and how to check an instance, in the core's
 `docs/deploy-digitalhub.md`. This page is what's specific to this pack and
 this instance.
@@ -76,11 +76,11 @@ in the production project, run as in the core's guide with:
 | `image` | `ghcr.io/gemello-digitale-bologna/bologna-civic-dt:<version>` |
 | `resources` | `{"cpu": "4", "mem": "4Gi"}` to start; tuned after the measurements |
 | `CIVIC_ENGAGEMENT_SITE` | the site |
-| `CIVIC_ENGAGEMENT_AUTH` | `pin` (from phase 2) |
-| `CIVIC_ENGAGEMENT_STATE` | `s3://datalake/civic-dt/` (from phase 2; until then the image's `/tmp`, lost with the run) |
+| `CIVIC_ENGAGEMENT_AUTH` | `pin` (without it, `open`: one shared scene, no login) |
+| `CIVIC_ENGAGEMENT_STATE` | where the state lives, once the administrators say where long-lived data goes: a directory on a volume that outlives runs, or `s3://datalake/civic-dt/` (the image would then need the core's `s3` extra). Until then, the image's `/tmp`, lost with the run |
 | `CIVIC_ENGAGEMENT_CPUS` | `4` |
-| `CIVIC_ENGAGEMENT_TRUSTED_PROXY` | `1` if the gateway sets `X-Forwarded-For` |
-| secrets | the manager's credentials, the PIN secret, the S3 credentials (names to be decided) |
+| `CIVIC_ENGAGEMENT_TRUSTED_PROXY` | `1` if the gateway sets `X-Forwarded-For`; else unset |
+| secrets | `CIVIC_ENGAGEMENT_PIN_SECRET`, `CIVIC_ENGAGEMENT_MANAGER_USER`, `CIVIC_ENGAGEMENT_MANAGER_PASSWORD`; with S3, its credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, the endpoint), unless the run's own are used (they expire: see the core's guide) |
 | security | `run_as_user=1000, run_as_group=1000, fs_group=1000` |
 
 The deployment script makes a deployment reproducible from the
@@ -96,7 +96,23 @@ uv run --no-project --with "digitalhub==0.15.*" --with "digitalhub-runtime-conta
 ```
 
 `--env NAME=VALUE` and `--secret NAME` add variables and project secrets;
-`--cpus` and `--memory` change the resources.
+`--cpus` and `--memory` change the resources. With teams, e.g.:
+
+```bash
+  ... --env CIVIC_ENGAGEMENT_AUTH=pin --env CIVIC_ENGAGEMENT_STATE=<the state's place> \
+  --secret <the project secret with the PIN secret and the manager's credentials>
+```
+
+Then the teams, from a laptop, through the route (or from a platform
+workspace, through the service's internal address), with the core's CLI:
+
+```bash
+export CIVIC_ENGAGEMENT_ADMIN_URL=https://<the site's hostname> \
+  CIVIC_ENGAGEMENT_MANAGER_USER=<user> CIVIC_ENGAGEMENT_MANAGER_PASSWORD=<password>
+uv run civic-engagement-admin team create "Tavolo 1"
+uv run civic-engagement-admin member add tavolo-1 "Anna" --editor
+uv run civic-engagement-admin member add tavolo-1 --viewers
+```
 
 **Tags.** The platform pulls an image only if the node doesn't have its tag
 yet (`IfNotPresent`): a tag that moves (`main`, `latest`) would keep running
@@ -116,7 +132,7 @@ authentication.
 
 The core's PIN mechanism, with the pack's format (`UrbanPack.pin_format`,
 a `WordPin` in `bologna_civic_dt/pins.py`): an Italian word and three
-digits, `carciofo515`. Easier to say, write on a card and remember than
+digits, `gabbiano515`. Easier to say, write on a card and remember than
 six digits.
 
 - **The words**: `bologna_civic_dt/words_it.txt`, from the Italian word
@@ -124,16 +140,17 @@ six digits.
   (2048 words, MIT licence; its origin and licence in the file's header).
   That list is built to be read and typed without mistakes: no accents, 4
   to 9 letters, no two words with the same first four letters. Kept from
-  it: everyday nouns; out: anything unpleasant or that could offend
-  (*usuraio*, *otite*, *buffone*), anything that sounds like a role or a
-  team. **At least 1000 words**, so at least 10⁶ PINs, as the core
-  requires.
+  it: 1078 nouns, concrete or neutral; out: verbs, adjectives, participles
+  and adverbs, names and countries, and anything unpleasant or that could
+  offend (*usuraio*, *otite*, *buffone*). So 1,078,000 PINs, above the
+  10⁶ the core requires (`tests/test_pins.py` checks it).
 - **Each PIN of a site has its own word** (the format's distinct part): a
   mistyped digit can't land on someone else's PIN; with 30 PINs among 1000
   words, easy.
-- **Forgiving input**: case, spaces, hyphens and underscores ignored —
-  `Carciofo 515`, `carciofo-515` and `CARCIOFO515` are the same PIN.
-- The login screen's hint: `es. carciofo515`.
+- **Forgiving input**: case, accents, spaces, hyphens and the order ignored —
+  `Gabbiano 515`, `gabbiano-515`, `GABBIANO515` and `515 gabbiano` are the
+  same PIN.
+- The login screen's hint: `es. gabbiano515`.
 
 ### The rest
 
@@ -141,11 +158,13 @@ six digits.
   core's dependency, like the core's routes.
 - **The felt-temperature fields**: the thread pool tracing the sun's rays
   (`thermal_field.py`) has as many threads as
-  `civic_engagement.config.cpus()` (phase 1; by default it had the
-  machine's count plus 4: 20 threads under a quota of 4). The cache
-  (`felt_field.py`, `FIELD_CACHE_SIZE`, now 24 fields of about 5 MB) goes
-  up to about 60 for the fields of 5 teams, and `FIELDS_AT_ONCE` (2) is
-  measured again on 4 CPUs (phase 2).
+  `civic_engagement.config.cpus()` (by default it had the machine's count
+  plus 4: 20 threads under a quota of 4). The cache (`felt_field.py`,
+  `FIELD_CACHE_SIZE`) holds 60 fields of about 5 MB, for 5 teams;
+  `FIELDS_AT_ONCE` (2) is to be measured again on 4 CPUs.
+- **The state's storage**: files, by default. The core can also keep it in
+  S3 (its `s3` extra, boto3), which the image doesn't install until the
+  storage is decided.
 
 ## Capacity
 
@@ -190,8 +209,9 @@ new run behind the same route.
    `CIVIC_ENGAGEMENT_BACKEND` for the dev server's proxy. Still to do: today's
    single session deployed on the platform, reached through the console,
    and the felt-field measurement there.
-2. **Teams**: the core's phase 2; the word list and `WordPin`;
-   `/thermal-field` and the felt-field cache.
+2. **Teams** (built): the core's phase 2; the word list and `WordPin`;
+   `/thermal-field` and the felt-field cache. Tried locally, with the state
+   in files, and in an S3 emulator (moto's server).
 3. **Production**: the route and the long-lived storage credentials (from
    the administrators); a load test at 5 × 6 from outside; a trial
    workshop.
