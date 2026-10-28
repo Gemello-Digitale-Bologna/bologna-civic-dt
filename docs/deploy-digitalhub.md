@@ -1,6 +1,8 @@
 # Deploying the urban app on DigitalHub Bologna
 
 **Status: phases 1 (packaging) and 2 (teams) built, not yet deployed** (October 2026).
+Tested first on FBK's instance (`most.atlas.fbk.eu`, on FBK's local
+network), then on Bologna's.
 
 The urban app — the core with this pack — as containers on the DigitalHub
 instance *digitalhub-bologna*, for teams working on a site. What the core
@@ -38,6 +40,24 @@ Tested on 24 October 2026 (the procedure is the core's guide's):
 | S3 | Write and read under `datalake/civic-dt-test/` from a run |
 | Internet from the cluster | Yes (PyPI) |
 | Gateway | **Not yet**: KRM shows no gateways for us (see [Pending](#pending)) |
+
+### FBK's test instance
+
+Before Bologna, the app is tried on FBK's DigitalHub, `most.atlas.fbk.eu`
+(reachable from FBK's network only). Tested on 28 October 2026:
+
+| Test | Result |
+|---|---|
+| Core | **0.15.1**, as Bologna's |
+| Non-root | Root refused (its administrators) |
+| GHCR image, 4 CPU / 4 GiB | Pulled; `cpu.max` 4 CPUs, memory limit 4.4 GiB |
+| `nproc` | 96 under a 4-CPU quota |
+| S3 | `https://s3.atlas.fbk.eu`, bucket `most-datalake`, path style: write, read, delete under `civic-dt-test/` from a run |
+| Runs' credentials | `AWS_*` with an `AWS_SESSION_TOKEN`, about 5.6 hours |
+| A project secret `AWS_ACCESS_KEY_ID` | **Overridden** by the run's own: hence the core's `CIVIC_ENGAGEMENT_S3_*` |
+| Internet from the cluster | Yes, through a proxy (`HTTP(S)_PROXY`) |
+| Logs | In the console, while the run lasts; `Run.logs()` fails as on Bologna |
+| Gateway | Not yet tried |
 
 ## Image
 
@@ -77,10 +97,10 @@ in the production project, run as in the core's guide with:
 | `resources` | `{"cpu": "4", "mem": "4Gi"}` to start; tuned after the measurements |
 | `CIVIC_ENGAGEMENT_SITE` | the site |
 | `CIVIC_ENGAGEMENT_AUTH` | `pin` (without it, `open`: one shared scene, no login) |
-| `CIVIC_ENGAGEMENT_STATE` | where the state lives, once the administrators say where long-lived data goes: a directory on a volume that outlives runs, or `s3://datalake/civic-dt/` (the image would then need the core's `s3` extra). Until then, the image's `/tmp`, lost with the run |
+| `CIVIC_ENGAGEMENT_STATE` | `s3://<bucket>/<prefix>/`, e.g. `s3://datalake/civic-dt/` (the keys start with the site's directory, so sites can share it): the state outlives runs and versions (without it, the image's `/tmp`, lost with the run) |
 | `CIVIC_ENGAGEMENT_CPUS` | `4` |
 | `CIVIC_ENGAGEMENT_TRUSTED_PROXY` | `1` if the gateway sets `X-Forwarded-For`; else unset |
-| secrets | `CIVIC_ENGAGEMENT_PIN_SECRET`, `CIVIC_ENGAGEMENT_MANAGER_USER`, `CIVIC_ENGAGEMENT_MANAGER_PASSWORD`; with S3, its credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, the endpoint), unless the run's own are used (they expire: see the core's guide) |
+| secrets | `CIVIC_ENGAGEMENT_PIN_SECRET`, `CIVIC_ENGAGEMENT_MANAGER_USER`, `CIVIC_ENGAGEMENT_MANAGER_PASSWORD`; S3's credentials, which must not expire, under the core's names: `CIVIC_ENGAGEMENT_S3_ACCESS_KEY`, `CIVIC_ENGAGEMENT_S3_SECRET_KEY` (the endpoint: the run's `AWS_ENDPOINT_URL`, or `CIVIC_ENGAGEMENT_S3_ENDPOINT`). Not `AWS_*`: the run's own temporary ones (about 5.5 hours) override a secret of that name |
 | security | `run_as_user=1000, run_as_group=1000, fs_group=1000` |
 
 The deployment script makes a deployment reproducible from the
@@ -162,9 +182,8 @@ six digits.
   plus 4: 20 threads under a quota of 4). The cache (`felt_field.py`,
   `FIELD_CACHE_SIZE`) holds 60 fields of about 5 MB, for 5 teams;
   `FIELDS_AT_ONCE` (2) is to be measured again on 4 CPUs.
-- **The state's storage**: files, by default. The core can also keep it in
-  S3 (its `s3` extra, boto3), which the image doesn't install until the
-  storage is decided.
+- **The state's storage**: S3 on the platform (the core's `s3` extra,
+  boto3, is a dependency); files by default, locally.
 
 ## Capacity
 
@@ -191,7 +210,7 @@ Asked to the instance's administrators on 24 October 2026:
 |---|---|
 | A gateway route: enabling HTTPRoutes in KRM for us, or creating one; the hostname or domain; a wildcard certificate | Exposure |
 | Does the gateway pass on the client's IP (`X-Forwarded-For`)? Its timeout, any limit on response size (we need about 5 MB) | PIN throttling; asynchronous fields |
-| The recommended way to keep data for a long-running service: S3 with dedicated credentials (a project secret), Postgres, a volume shared across runs, ... | The state store's credentials (the design stands with any of them, as long as they don't expire) |
+| ~~The recommended way to keep data for a long-running service~~ S3 (answered October 2026). Still to be had: static credentials limited to our prefix; or else how long a run's `DHCORE_REFRESH_TOKEN` lasts, to refresh the run's own | The state store's credentials |
 | Are the runs' volumes deleted with the run? | Cleaning up |
 | Which SDK version for core 0.15.1? | The deployment script |
 

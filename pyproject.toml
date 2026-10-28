@@ -7,7 +7,7 @@ license = "Apache-2.0"
 requires-python = ">=3.12"
 dependencies = [
     "civic-digital-twins==0.12.0",
-    "civic-engagement",
+    "civic-engagement[s3]",
     "geopandas>=1.1.4",
     "numpy",
     "osmnx>=2.1.0",
@@ -33,4 +33,4 @@ module-root = ""
 
 [tool.uv.sources]
 # The core, at a commit of its repository: set it with scripts/core.py.
-civic-engagement = { git = "https://github.com/fbk-most/civic-engagement", rev = "b70d1979af05cff928415dbb988d35053bb05159" }
+civic-engagement = { git = "https://github.com/fbk-most/civic-engagement", rev = "f4cdb7716cd8dd58c5257de9a16d2ff97fd0aa79" }
