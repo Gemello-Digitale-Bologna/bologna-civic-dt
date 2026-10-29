@@ -72,7 +72,10 @@ repository's root, which holds `data/`:
 uv sync
 
 # One-off: fetch OSM data for the active site and build the baseline
-# (CIVIC_ENGAGEMENT_SITE selects the site; defaults to piazza_dante)
+# (CIVIC_ENGAGEMENT_SITE selects the site; defaults to piazza_dante).
+# From an Overpass server, overpass-api.de: its errors are tried again
+# twice; if it's down, another: OVERPASS_URL=https://overpass.kumi.systems/api.
+# What was fetched is cached (cache/): a re-run picks up where it stopped.
 uv run python -m bologna_civic_dt.ingestion.build_baseline
 
 # Run the API
@@ -130,10 +133,15 @@ The app, in `frontend/`:
 
 ```bash
 cd frontend
-npm install
+npm ci            # installs what package-lock.json says, and leaves it as it is
 npm run dev       # http://localhost:5173, proxies /api to the backend on :8000
 npm run typecheck && npm run lint
 ```
+
+`npm install` is for changing the dependencies, with npm 11.11 or later
+(`package.json`'s `devEngines`; an older one warns): an older npm rewrites
+`package-lock.json` without the native packages' `libc`, a change for
+nothing.
 
 For workshops, demos and performance measurements, use the production build
 (see the core's README for why):
@@ -171,8 +179,7 @@ with an editor and its viewers.
 # The backend (the state in a directory of its own, not data/<site>/)
 CIVIC_ENGAGEMENT_AUTH=pin CIVIC_ENGAGEMENT_STATE=/tmp/teams-state \
 CIVIC_ENGAGEMENT_PIN_SECRET=local-secret-0123456789 \
-CIVIC_ENGAGEMENT_MANAGER_USER=manager CIVIC_ENGAGEMENT_MANAGER_PASSWORD=password \
-CIVIC_ENGAGEMENT_TRUSTED_PROXY=0 \
+CIVIC_ENGAGEMENT_MANAGER_USER=manager CIVIC_ENGAGEMENT_MANAGER_PASSWORD=local-password \
   uv run uvicorn bologna_civic_dt.main:app --reload
 
 # The app: http://localhost:5173, on the PIN screen
@@ -180,7 +187,7 @@ cd frontend && npm run dev
 
 # A team, as the manager
 export CIVIC_ENGAGEMENT_ADMIN_URL=http://localhost:8000 \
-  CIVIC_ENGAGEMENT_MANAGER_USER=manager CIVIC_ENGAGEMENT_MANAGER_PASSWORD=password
+  CIVIC_ENGAGEMENT_MANAGER_USER=manager CIVIC_ENGAGEMENT_MANAGER_PASSWORD=local-password
 uv run civic-engagement-admin team create "Tavolo 1"
 uv run civic-engagement-admin member add tavolo-1 "Anna" --editor   # prints Anna's PIN
 uv run civic-engagement-admin member add tavolo-1 --viewers         # the viewers' PIN
@@ -188,7 +195,15 @@ uv run civic-engagement-admin --help
 ```
 
 The PIN secret must stay the same across restarts: another one makes every
-PIN and every open window's token invalid.
+PIN and every open window's token invalid. The manager's password: 12
+characters or more.
+
+Wrong PINs make the next attempts wait, beyond 60 a minute across the
+site. `CIVIC_ENGAGEMENT_TRUSTED_PROXY` stays unset here: through Vite's
+proxy, or Docker's port forwarding, every browser seems to come from the
+same address, and a limit per address would hold everyone up for one
+person's typos (the core's README, "Teams"). Should it happen anyway,
+`uv run civic-engagement-admin throttle reset`.
 
 ## Container
 

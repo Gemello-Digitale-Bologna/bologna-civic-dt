@@ -99,7 +99,7 @@ in the production project, run as in the core's guide with:
 | `CIVIC_ENGAGEMENT_AUTH` | `pin` (without it, `open`: one shared scene, no login) |
 | `CIVIC_ENGAGEMENT_STATE` | `s3://<bucket>/<prefix>/`, e.g. `s3://datalake/civic-dt/` (the keys start with the site's directory, so sites can share it): the state outlives runs and versions (without it, the image's `/tmp`, lost with the run) |
 | `CIVIC_ENGAGEMENT_CPUS` | `4` |
-| `CIVIC_ENGAGEMENT_TRUSTED_PROXY` | `1` if the gateway sets `X-Forwarded-For`; else unset |
+| `CIVIC_ENGAGEMENT_TRUSTED_PROXY` | `1` only if the gateway's `X-Forwarded-For` is the client's own address; else unset. On most.atlas it's an address inside the cluster, the same for everyone: unset |
 | secrets | `CIVIC_ENGAGEMENT_PIN_SECRET`, `CIVIC_ENGAGEMENT_MANAGER_USER`, `CIVIC_ENGAGEMENT_MANAGER_PASSWORD`; S3's credentials, which must not expire, under the core's names: `CIVIC_ENGAGEMENT_S3_ACCESS_KEY`, `CIVIC_ENGAGEMENT_S3_SECRET_KEY` (the endpoint: the run's `AWS_ENDPOINT_URL`, or `CIVIC_ENGAGEMENT_S3_ENDPOINT`). Not `AWS_*`: the run's own temporary ones (about 5.5 hours) override a secret of that name |
 | security | `run_as_user=1000, run_as_group=1000, fs_group=1000` |
 

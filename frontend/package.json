@@ -12,7 +12,7 @@
     "typecheck": "tsc -p tsconfig.app.json --noEmit"
   },
   "dependencies": {
-    "civic-engagement": "github:fbk-most/civic-engagement#f4cdb7716cd8dd58c5257de9a16d2ff97fd0aa79",
+    "civic-engagement": "github:fbk-most/civic-engagement#114672485f8a736f876d9f0642d0c5bdc0c7e0e9",
     "three": "^0.185.1"
   },
   "devDependencies": {
@@ -23,5 +23,12 @@
     "oxlint": "^1.71.0",
     "typescript": "~6.0.2",
     "vite": "^8.1.1"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "npm",
+      "version": ">=11.11.0",
+      "onFail": "warn"
+    }
   }
 }

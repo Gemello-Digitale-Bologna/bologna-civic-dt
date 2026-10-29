@@ -1,11 +1,20 @@
 """OSM fetch helpers for baseline ingestion. The buildings' heights and
-roofs are the core's (civic_engagement/ingestion/buildings.py)."""
+roofs are the core's (civic_engagement/ingestion/buildings.py).
+
+The queries go to an Overpass server through osmnx: overpass-api.de by
+default, another with OVERPASS_URL (e.g. https://overpass.kumi.systems/api).
+Its answers are cached (./cache): a build that stopped picks up where it
+did when run again."""
 
 import math
+import os
+import re
+import time
 
 import geopandas as gpd
 import osmnx as ox
 import pandas as pd
+import requests
 from shapely.geometry import mapping, shape
 from shapely.geometry.base import BaseGeometry
 
@@ -55,6 +64,44 @@ STREET_WIDTH_DEFAULTS_M = {
 }
 LANE_WIDTH_M = 3.25
 
+if os.environ.get("OVERPASS_URL"):
+    ox.settings.overpass_url = os.environ["OVERPASS_URL"]
+
+# An overloaded Overpass server answers 502 or 503, or drops the
+# connection, for a while: osmnx retries only a 429 or a 504.
+RETRY_WAITS_S = (30, 60)
+
+
+def features(polygon: BaseGeometry, tags: dict) -> gpd.GeoDataFrame:
+    """ox.features_from_polygon, tried again after a server's error."""
+    for wait in (*RETRY_WAITS_S, None):
+        try:
+            return ox.features_from_polygon(polygon, tags=tags)
+        except (ox._errors.ResponseStatusCodeError, requests.ConnectionError, requests.Timeout) as error:
+            if not _transient(error):
+                raise
+            if wait is None:
+                raise RuntimeError(
+                    f"{ox.settings.overpass_url}: {_first_line(error)}, {len(RETRY_WAITS_S) + 1} times. "
+                    "Try again later (what was fetched is cached), or another Overpass server: "
+                    "OVERPASS_URL=https://overpass.kumi.systems/api"
+                ) from error
+            print(f"  {ox.settings.overpass_url}: {_first_line(error)}; trying again in {wait} s")
+            time.sleep(wait)
+    raise AssertionError("unreachable")
+
+
+def _transient(error: Exception) -> bool:
+    """A lost connection, or a server's error (5xx); not a bad query."""
+    if not isinstance(error, ox._errors.ResponseStatusCodeError):
+        return True
+    status = re.search(r"responded: (\d{3})", str(error))
+    return status is None or status.group(1).startswith("5")
+
+
+def _first_line(error: Exception) -> str:
+    return str(error).strip().splitlines()[0][:200] if str(error).strip() else type(error).__name__
+
 
 def buffer_polygon_m(polygon_wgs84: BaseGeometry, buffer_m: float) -> BaseGeometry:
     """Buffer a WGS84 polygon by a distance in meters, via a projected round-trip."""
@@ -66,11 +113,11 @@ def buffer_polygon_m(polygon_wgs84: BaseGeometry, buffer_m: float) -> BaseGeomet
 def fetch_buildings(polygon: BaseGeometry) -> gpd.GeoDataFrame:
     """The building footprints, with their OSM tags (see the core's
     ingestion/buildings.py)."""
-    return footprints(ox.features_from_polygon(polygon, tags={"building": True}))
+    return footprints(features(polygon, tags={"building": True}))
 
 
 def fetch_cover_regions(polygon: BaseGeometry) -> gpd.GeoDataFrame:
-    regions = ox.features_from_polygon(polygon, tags=COVER_TAGS)
+    regions = features(polygon, tags=COVER_TAGS)
     regions = regions[regions.geometry.type.isin(["Polygon", "MultiPolygon"])].reset_index()
 
     def cover_type_for(row) -> str | None:
@@ -87,7 +134,7 @@ def fetch_cover_regions(polygon: BaseGeometry) -> gpd.GeoDataFrame:
 
 def fetch_paths(polygon: BaseGeometry) -> gpd.GeoDataFrame:
     try:
-        paths = ox.features_from_polygon(polygon, tags={"highway": PATH_HIGHWAY_TAGS})
+        paths = features(polygon, tags={"highway": PATH_HIGHWAY_TAGS})
     except ox._errors.InsufficientResponseError:
         return gpd.GeoDataFrame(columns=["geometry", "width", "material", "footway"])
     paths = paths[paths.geometry.type.isin(["LineString", "MultiLineString"])].reset_index()
@@ -226,7 +273,7 @@ def street_widths(streets: gpd.GeoDataFrame) -> pd.Series:
 
 def fetch_streets(polygon: BaseGeometry) -> gpd.GeoDataFrame:
     try:
-        streets = ox.features_from_polygon(polygon, tags={"highway": STREET_HIGHWAY_TAGS})
+        streets = features(polygon, tags={"highway": STREET_HIGHWAY_TAGS})
     except ox._errors.InsufficientResponseError:
         return gpd.GeoDataFrame(
             columns=["geometry", "width", "name", "oneway", "highway", "lanes", "lanes_forward", "lanes_backward"]
@@ -252,7 +299,7 @@ def fetch_crossing_footways(polygon: BaseGeometry) -> gpd.GeoDataFrame:
     by `fetch_points` — this is what gives a crossing a real orientation to
     draw zebra stripes along (see build_baseline.py)."""
     try:
-        footways = ox.features_from_polygon(polygon, tags={"footway": "crossing"})
+        footways = features(polygon, tags={"footway": "crossing"})
     except ox._errors.InsufficientResponseError:
         return gpd.GeoDataFrame(columns=["geometry"])
     footways = footways[footways.geometry.type.isin(["LineString", "MultiLineString"])].reset_index()
@@ -261,7 +308,7 @@ def fetch_crossing_footways(polygon: BaseGeometry) -> gpd.GeoDataFrame:
 
 def fetch_points(polygon: BaseGeometry, tags: dict) -> gpd.GeoDataFrame:
     try:
-        points = ox.features_from_polygon(polygon, tags=tags)
+        points = features(polygon, tags=tags)
     except ox._errors.InsufficientResponseError:
         return gpd.GeoDataFrame(columns=["geometry"])
     return points[points.geometry.type == "Point"].reset_index()
