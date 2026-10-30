@@ -1,16 +1,16 @@
-# Deploying the urban app on DigitalHub Bologna
+# Deploying the urban app on DigitalHub
 
-**Status: phases 1 (packaging) and 2 (teams) built, not yet deployed** (October 2026).
-Tested first on FBK's instance (`most.atlas.fbk.eu`, on FBK's local
-network), then on Bologna's.
+**Status: built (packaging, teams, S3 credentials renewed); tried on a test
+instance** (October 2026).
 
-The urban app — the core with this pack — as containers on the DigitalHub
-instance *digitalhub-bologna*, for teams working on a site. What the core
-provides (teams, PINs, the state store) is in the core's README, "Teams";
-the container's contract and how any pack runs on DigitalHub, the
-platform's constraints and how to check an instance, in the core's
-`docs/deploy-digitalhub.md`. This page is what's specific to this pack and
-this instance.
+The urban app — the core with this pack — as containers on a DigitalHub
+instance, for teams working on a site. What the core provides (teams,
+PINs, the state store) is in the core's README, "Teams"; the container's
+contract and how any pack runs on DigitalHub, the platform's constraints
+and how to check an instance, in the core's `docs/deploy-digitalhub.md`.
+This page is what's specific to this pack. What's specific to an instance
+(its addresses, bucket, project, what was measured there) is kept out of
+the repository.
 
 ## Target
 
@@ -18,46 +18,6 @@ this instance.
   measurements say so (see [Capacity](#capacity)).
 - One run per site deployed. Which sites: to be decided (Piazza XX
   Settembre; Piazza Dante, for demos).
-
-## The instance
-
-| | |
-|---|---|
-| Instance | `digitalhub-bologna`, core **0.15.1** (API level 15) |
-| Core (API, identity issuer), KRM | `https://core.bolognadigitaltwin.it`, `https://krm.bolognadigitaltwin.it` |
-| S3 | `https://s3.bolognadigitaltwin.it`, bucket `datalake`, path style; prefix for the app: `civic-dt/` |
-| Test project | `civic-dt-test` (the production project: to be decided) |
-| Runs' credentials | temporary, about 5.5 hours: not for the state (see the core's guide) |
-
-Tested on 24 October 2026 (the procedure is the core's guide's):
-
-| Test | Result |
-|---|---|
-| Non-root | Root refused; whoami as user 1000 runs |
-| GHCR image, 4 CPU / 4 GiB | Pulled; accepted |
-| `nproc` | 16 under a 4-CPU quota |
-| Volume | Per run: kept across stop/resume, a new run starts empty |
-| S3 | Write and read under `datalake/civic-dt-test/` from a run |
-| Internet from the cluster | Yes (PyPI) |
-| Gateway | **Not yet**: KRM shows no gateways for us (see [Pending](#pending)) |
-
-### FBK's test instance
-
-Before Bologna, the app is tried on FBK's DigitalHub, `most.atlas.fbk.eu`
-(reachable from FBK's network only). Tested on 28 October 2026:
-
-| Test | Result |
-|---|---|
-| Core | **0.15.1**, as Bologna's |
-| Non-root | Root refused (its administrators) |
-| GHCR image, 4 CPU / 4 GiB | Pulled; `cpu.max` 4 CPUs, memory limit 4.4 GiB |
-| `nproc` | 96 under a 4-CPU quota |
-| S3 | `https://s3.atlas.fbk.eu`, bucket `most-datalake`, path style: write, read, delete under `civic-dt-test/` from a run |
-| Runs' credentials | `AWS_*` with an `AWS_SESSION_TOKEN`, about 5.6 hours |
-| A project secret `AWS_ACCESS_KEY_ID` | **Overridden** by the run's own: hence the core's `CIVIC_ENGAGEMENT_S3_*` |
-| Internet from the cluster | Yes, through a proxy (`HTTP(S)_PROXY`) |
-| Logs | In the console, while the run lasts; `Run.logs()` fails as on Bologna |
-| Gateway | Not yet tried |
 
 ## Image
 
@@ -97,10 +57,11 @@ in the production project, run as in the core's guide with:
 | `resources` | `{"cpu": "4", "mem": "4Gi"}` to start; tuned after the measurements |
 | `CIVIC_ENGAGEMENT_SITE` | the site |
 | `CIVIC_ENGAGEMENT_AUTH` | `pin` (without it, `open`: one shared scene, no login) |
-| `CIVIC_ENGAGEMENT_STATE` | `s3://<bucket>/<prefix>/`, e.g. `s3://datalake/civic-dt/` (the keys start with the site's directory, so sites can share it): the state outlives runs and versions (without it, the image's `/tmp`, lost with the run) |
+| `CIVIC_ENGAGEMENT_STATE` | `s3://<bucket>/<prefix>/`, the instance's bucket (the keys start with the site's directory, so sites can share a prefix): the state outlives runs and versions (without it, the image's `/tmp`, lost with the run) |
 | `CIVIC_ENGAGEMENT_CPUS` | `4` |
-| `CIVIC_ENGAGEMENT_TRUSTED_PROXY` | `1` only if the gateway's `X-Forwarded-For` is the client's own address; else unset. On most.atlas it's an address inside the cluster, the same for everyone: unset |
-| secrets | `CIVIC_ENGAGEMENT_PIN_SECRET`, `CIVIC_ENGAGEMENT_MANAGER_USER`, `CIVIC_ENGAGEMENT_MANAGER_PASSWORD`; S3's credentials, which must not expire, under the core's names: `CIVIC_ENGAGEMENT_S3_ACCESS_KEY`, `CIVIC_ENGAGEMENT_S3_SECRET_KEY` (the endpoint: the run's `AWS_ENDPOINT_URL`, or `CIVIC_ENGAGEMENT_S3_ENDPOINT`). Not `AWS_*`: the run's own temporary ones (about 5.5 hours) override a secret of that name |
+| `CIVIC_ENGAGEMENT_TRUSTED_PROXY` | `1` only if the gateway's `X-Forwarded-For` is the client's own address (the core's guide, "Checking an instance": the gateway); else unset. A gateway whose `X-Forwarded-For` is an address inside the cluster, the same for every client: unset |
+| `CIVIC_ENGAGEMENT_S3_CREDENTIALS` | `digitalhub` (the script sets it, with the state in S3): the run's own S3 credentials, which last about 5.5 hours, renewed by the app through the platform's SDK every 2 hours (the core's `dh` extra; `/api/admin/status` shows them, `storage.credentials`) |
+| secrets | `CIVIC_ENGAGEMENT_PIN_SECRET`, `CIVIC_ENGAGEMENT_MANAGER_USER`, `CIVIC_ENGAGEMENT_MANAGER_PASSWORD` (12 characters or more) |
 | security | `run_as_user=1000, run_as_group=1000, fs_group=1000` |
 
 The deployment script makes a deployment reproducible from the
@@ -109,9 +70,9 @@ running runs stopped first (never two writers), a new run, and a wait until
 it serves.
 
 ```bash
-export DHCORE_ENDPOINT=https://core.bolognadigitaltwin.it DHCORE_PERSONAL_ACCESS_TOKEN=<token>
+export DHCORE_ENDPOINT=https://<the instance's core> DHCORE_PERSONAL_ACCESS_TOKEN=<token>
 uv run --no-project --with "digitalhub==0.15.*" --with "digitalhub-runtime-container==0.15.*" \
-  python scripts/deploy_digitalhub.py --project civic-dt-test --site piazza_xx_settembre \
+  python scripts/deploy_digitalhub.py --project <project> --site piazza_xx_settembre \
   --image ghcr.io/gemello-digitale-bologna/bologna-civic-dt:<version>
 ```
 
@@ -119,9 +80,17 @@ uv run --no-project --with "digitalhub==0.15.*" --with "digitalhub-runtime-conta
 `--cpus` and `--memory` change the resources. With teams, e.g.:
 
 ```bash
-  ... --env CIVIC_ENGAGEMENT_AUTH=pin --env CIVIC_ENGAGEMENT_STATE=<the state's place> \
-  --secret <the project secret with the PIN secret and the manager's credentials>
+  ... --env CIVIC_ENGAGEMENT_AUTH=pin --env CIVIC_ENGAGEMENT_STATE=s3://<bucket>/<prefix>/ \
+  --secret CIVIC_ENGAGEMENT_PIN_SECRET --secret CIVIC_ENGAGEMENT_MANAGER_USER \
+  --secret CIVIC_ENGAGEMENT_MANAGER_PASSWORD
 ```
+
+**A run that ends by itself.** The platform ends a run at its container's
+second restart (the app killed for its memory, say), and once the app has
+renewed its credentials even a first restart can't work: a restarted
+container gets the run's original ones, by then invalid. The run is then
+`ERROR`: run the same command again — a new run, new credentials, the state
+read back from S3, the PINs unchanged.
 
 Then the teams, from a laptop, through the route (or from a platform
 workspace, through the service's internal address), with the core's CLI:
@@ -143,8 +112,7 @@ README's "Container"), or a digest. `--pull-always` allows any tag, and has
 the platform pull it every time the run starts.
 
 A route per site, to `s-<project>-urban-<site>-latest`, port 8080, on its
-own hostname under the instance's services domain (to be confirmed), no
-authentication.
+own hostname under the instance's services domain, no authentication.
 
 ## The pack's part
 
@@ -182,8 +150,9 @@ six digits.
   plus 4: 20 threads under a quota of 4). The cache (`felt_field.py`,
   `FIELD_CACHE_SIZE`) holds 60 fields of about 5 MB, for 5 teams;
   `FIELDS_AT_ONCE` (2) is to be measured again on 4 CPUs.
-- **The state's storage**: S3 on the platform (the core's `s3` extra,
-  boto3, is a dependency); files by default, locally.
+- **The state's storage**: S3 on the platform, its credentials renewed
+  through the platform's SDK (the core's `dh` extra, with boto3, is a
+  dependency); files by default, locally.
 
 ## Capacity
 
@@ -192,8 +161,8 @@ Editing costs little. The cost is the felt-temperature fields: computed per
 every allowed core each, at most `FIELDS_AT_ONCE` at once. Teams with the
 same cards share them.
 
-What decides it is the time of **one field on 4 of the platform's CPUs**,
-measured once the image runs there (phase 1):
+What decides it is the time of **one field on 4 of the platform's CPUs**:
+0.5–0.6 s, measured on a test instance.
 
 - around a second: 5 × 6 is fine;
 - around ten seconds: date changes queue. Then precompute the fields at
@@ -204,33 +173,20 @@ asynchronous: a request starts it, the next ones fetch it when ready.
 
 ## Pending
 
-Asked to the instance's administrators on 24 October 2026:
-
-| Question | Bears on |
-|---|---|
-| A gateway route: enabling HTTPRoutes in KRM for us, or creating one; the hostname or domain; a wildcard certificate | Exposure |
-| Does the gateway pass on the client's IP (`X-Forwarded-For`)? Its timeout, any limit on response size (we need about 5 MB) | PIN throttling; asynchronous fields |
-| ~~The recommended way to keep data for a long-running service~~ S3 (answered October 2026). Still to be had: static credentials limited to our prefix; or else how long a run's `DHCORE_REFRESH_TOKEN` lasts, to refresh the run's own | The state store's credentials |
-| Are the runs' volumes deleted with the run? | Cleaning up |
-| Which SDK version for core 0.15.1? | The deployment script |
-
 Ours to decide: the sites to deploy, the production project, publishing
-images under `Gemello-Digitale-Bologna` on GHCR.
-
-Once a route exists, the gateway tests of the core's guide: the client's
-IP, a 5 MB answer, the first wait that fails among 20, 40, 70 and 130 s, a
-new run behind the same route.
+images under `Gemello-Digitale-Bologna` on GHCR. On each instance, the
+checks of the core's guide (the gateway's above all), before the first
+deployment.
 
 ## Phases
 
 1. **Packaging** (built): the core's phase 1; the Dockerfile, CI, the
    deployment script, the sun-ray pool sized from the quota,
-   `CIVIC_ENGAGEMENT_BACKEND` for the dev server's proxy. Still to do: today's
-   single session deployed on the platform, reached through the console,
-   and the felt-field measurement there.
+   `CIVIC_ENGAGEMENT_BACKEND` for the dev server's proxy.
 2. **Teams** (built): the core's phase 2; the word list and `WordPin`;
-   `/thermal-field` and the felt-field cache. Tried locally, with the state
-   in files, and in an S3 emulator (moto's server).
-3. **Production**: the route and the long-lived storage credentials (from
-   the administrators); a load test at 5 × 6 from outside; a trial
-   workshop.
+   `/thermal-field` and the felt-field cache. Tried locally, in an S3
+   emulator (moto's server), and on a test instance.
+3. **Long-lived runs** (built): the run's S3 credentials renewed through
+   the SDK (the core's `dh` extra).
+4. **Production**: a route on the production instance; a load test at
+   5 × 6 from outside; a trial workshop.

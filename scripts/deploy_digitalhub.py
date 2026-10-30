@@ -1,7 +1,7 @@
 """Deploys a site of the urban app on DigitalHub (see docs/deploy-digitalhub.md):
 
     uv run --no-project --with "digitalhub==0.15.*" --with "digitalhub-runtime-container==0.15.*" \\
-        python scripts/deploy_digitalhub.py --project civic-dt-test --site piazza_xx_settembre \\
+        python scripts/deploy_digitalhub.py --project <project> --site piazza_xx_settembre \\
         --image ghcr.io/gemello-digitale-bologna/bologna-civic-dt:<version>
 
 The image's tag must name one build for good — a version (`0.2.0`), a
@@ -15,6 +15,10 @@ running runs are stopped first (one process per site's state: never two
 writers), then a new run starts, and the script waits until it serves. A
 gateway route to the function's stable service (printed at the end)
 follows the new run.
+
+With the state in S3 (`--env CIVIC_ENGAGEMENT_STATE=s3://...`), the run's own
+S3 credentials, renewed by the app (CIVIC_ENGAGEMENT_S3_CREDENTIALS=digitalhub,
+set unless given, or static keys given: `--secret CIVIC_ENGAGEMENT_S3_ACCESS_KEY`).
 
 The SDK's credentials as it reads them: DHCORE_ENDPOINT and
 DHCORE_PERSONAL_ACCESS_TOKEN, or a platform workspace's own.
@@ -74,6 +78,9 @@ def main() -> None:
         "CIVIC_ENGAGEMENT_CPUS": args.cpus,
         **dict(_variable(text) for text in args.env),
     }
+    if envs.get("CIVIC_ENGAGEMENT_STATE", "").startswith("s3://") and "CIVIC_ENGAGEMENT_S3_ACCESS_KEY" not in args.secret:
+        # The run's credentials last about 5.5 hours: the app renews them.
+        envs.setdefault("CIVIC_ENGAGEMENT_S3_CREDENTIALS", "digitalhub")
     run = function.run(
         action="serve",
         service_ports=[{"port": PORT, "target_port": PORT}],
